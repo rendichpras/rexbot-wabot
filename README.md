@@ -1,0 +1,160 @@
+# rexbot-wabot
+
+`rexbot-wabot` adalah bot WhatsApp yang dibangun menggunakan library [@itsreimau/gktw](https://www.npmjs.com/package/@itsreimau/gktw), yaitu sebuah fork dari [@mengkodingan/ckptw](https://ckptw.mengkodingan.my.id/) dengan berbagai pembaruan modern dan dukungan yang lebih up-to-date terhadap perubahan di WhatsApp. Bot ini dirancang untuk mengotomatisasi berbagai tugas di WhatsApp, serta mendukung arsitektur modular melalui sistem perintah (command), sehingga memudahkan pengembangan dan pemeliharaan fitur.
+
+## Disclaimer
+
+`rexbot-wabot` **tidak berafiliasi dengan WhatsApp, Meta, atau pihak manapun**. Ini adalah proyek **open-source** yang dibuat untuk keperluan edukasi dan pengembangan.
+
+Bot ini menggunakan **API tidak resmi (Unofficial WhatsApp API)**, sehingga **berpotensi menyebabkan akun WhatsApp dibanned**.
+
+Gunakan dengan bijak dan tanggung sendiri risikonya. Kami **tidak bertanggung jawab atas penyalahgunaan atau kerugian yang ditimbulkan** dari penggunaan proyek ini.
+
+## Key Features
+
+- **Penanganan Pesan:** Bot dapat menangani pesan yang masuk dan memberikan respons sesuai kebutuhan.
+- **Penanganan Perintah:** Bot dapat menangani perintah yang dikirim oleh pengguna dan menjalankan tindakan yang sesuai.
+- **Respon Interaktif:** Bot memberikan tanggapan dinamis dan interaktif terhadap pertanyaan atau perintah pengguna.
+- **Penanganan Media:** Mendukung pengiriman dan penerimaan berbagai media seperti gambar, video, dan dokumen.
+- **Sistem Perintah Modular:** Bot mudah diperluas dengan menambahkan perintah baru sesuai kebutuhanmu.
+
+## How to Get Started
+
+Ikuti langkah-langkah berikut untuk mengatur dan menjalankan `rexbot-wabot`:
+
+### 1. Cloning Repository
+
+Pertama, kloning repositori dan masuk ke direktori proyek:
+
+```bash
+git clone https://github.com/rendichpras/rexbot-wabot.git
+cd rexbot-wabot
+```
+
+### 2. Dependency Installation
+
+Instal semua dependensi yang dibutuhkan dengan perintah berikut:
+
+```bash
+npm install
+```
+
+### 3. Configuration
+
+Ganti nama file `config.example.js` menjadi `config.js`, lalu sesuaikan konfigurasi seperti nama bot, pesan default, nomor owner bot, dan lain-lain.
+
+## Authentication Adapter
+
+`rexbot-wabot` mendukung penyimpanan sesi autentikasi menggunakan pilihan database: **MySQL**, **MongoDB**, dan **Firebase**. Pilih dan atur database sesuai preferensimu dengan langkah-langkah berikut:
+
+### 1. Select Database Adapter
+
+Pada file konfigurasi `config.js`, sesuaikan bagian `authAdapter` dengan adapter database yang kamu pilih.
+
+### 2. Install Database Module
+
+Setelah memilih adapter yang diinginkan, jalankan perintah berikut untuk menginstal modul yang diperlukan:
+
+```bash
+npm run install:adapter
+```
+
+Perintah ini akan menginstal modul yang sesuai dengan konfigurasi adapter yang kamu pilih.
+
+### 3. Make sure Database is Active
+
+Pastikan server databasemu aktif dan dapat diakses sebelum menjalankan bot. Periksa hal-hal berikut:
+
+- Untuk **MySQL**, pastikan kredensial pengguna dan nama database benar.
+- Untuk **MongoDB**, pastikan URL yang dimasukkan dapat terhubung ke server MongoDB.
+- Untuk **Firebase**, pastikan kredensial akun layanan yang diunduh dari Google Firebase Console telah dimasukkan dengan benar.
+
+## Running Bot
+
+Setelah konfigurasi selesai, kamu dapat menjalankan bot dengan dua opsi berikut:
+
+### 1. Run Directly
+
+Untuk menjalankan bot secara langsung di terminal, gunakan perintah:
+
+```bash
+npm start
+```
+
+Bot akan berjalan hingga kamu menutup terminal atau menghentikannya secara manual.
+
+### 2. Run with PM2
+
+Jika kamu ingin menjalankan bot sebagai layanan latar belakang (background process) yang tetap aktif meskipun terminal ditutup, gunakan PM2:
+
+```bash
+npm run start:pm2
+```
+
+## WhatsApp Authentication
+
+Ada dua metode autentikasi yang dapat digunakan untuk menghubungkan bot ke akun WhatsAppmu:
+
+### 1. Using Pairing Code
+
+- Setelah bot dijalankan, kode pairing akan ditampilkan di terminal.
+- Buka aplikasi WhatsApp di ponsel, pilih menu **Perangkat Tertaut**, lalu ketuk **Tautkan Perangkat**.
+- Masukkan kode pairing yang ditampilkan di terminal untuk menautkan akun WhatsApp dengan bot.
+
+### 2. Using QR Code
+
+- Setelah bot dijalankan, kode QR akan muncul di terminal.
+- Buka aplikasi WhatsApp di ponsel, pilih menu **Perangkat Tertaut**, lalu ketuk **Tautkan Perangkat**.
+- Pindai kode QR yang muncul di terminal untuk menautkan akun WhatsApp dengan bot.
+
+Setelah proses autentikasi berhasil, bot siap untuk menerima dan merespons pesan sesuai dengan perintah yang diberikan.
+
+## Customization
+
+### Added New Commands
+
+Untuk menambahkan perintah baru, ikuti langkah-langkah berikut:
+
+1. Buat file JavaScript baru di folder `commands` dengan fungsionalitas yang diinginkan. Misalnya, buat file `test/helloworld.js`:
+
+   ```javascript
+   // commands/test/helloworld.js
+
+   module.exports = { // Mengatur dan membagikan fungsi untuk perintah "helloworld"
+       name: "helloworld", // Nama perintah yang akan digunakan oleh pengguna
+       aliases: ["hello"], // Nama alternatif yang bisa digunakan untuk memanggil perintah ini
+       category: "test", // Kategori untuk mengelompokkan perintah ini
+       permissions: { // Pengaturan khusus untuk perintah ini
+           admin: Boolean, // Apakah hanya admin grup yang bisa menggunakan perintah ini? (true/false)
+           botAdmin: Boolean, // Apakah bot harus menjadi admin agar bisa menjalankan perintah ini? (true/false)
+           coin: Number, // Jumlah koin yang diperlukan untuk menjalankan perintah ini
+           group: Boolean, // Apakah perintah ini hanya bisa digunakan di dalam grup? (true/false)
+           owner: Boolean, // Apakah hanya owner bot yang bisa menggunakan perintah ini? (true/false)
+           premium: Boolean, // Apakah hanya pengguna premium yang bisa menggunakan perintah ini? (true/false)
+           private: Boolean // Apakah perintah ini hanya bisa digunakan dalam chat pribadi? (true/false)
+       },
+       code: async (ctx) => { // Fungsi yang dijalankan saat perintah ini dipanggil
+           return await ctx.reply("Hello, World!"); // Kirim pesan "Hello, World!" kepada pengguna
+       }
+   };
+   ```
+
+2. Perintah ini dapat dipicu dengan mengirimkan `/helloworld` di chat.
+
+### Complete Documentation
+
+`@itsreimau/gktw` adalah library yang digunakan oleh `rexbot-wabot`, dibangun di atas `baileys-mod` yang mendukung lebih banyak fitur WhatsApp dibandingkan `@whiskeysockets/baileys`. Dokumentasi `@itsreimau/gktw` umumnya mirip dengan dokumentasi `@mengkodingan/ckptw`, namun dengan beberapa tambahan dan pembaruan.
+
+Untuk informasi lebih lanjut, silakan kunjungi:
+
+- [@mengkodingan/ckptw](https://ckptw.mengkodingan.my.id/)
+- [@itsreimau/gktw (npm)](https://www.npmjs.com/package/@itsreimau/gktw)
+- [baileys-mod (github)](https://github.com/nstar-y/bail) – berisi dokumentasi tambahan seperti pengiriman berbagai jenis pesan
+
+## Contribution
+
+Kami sangat terbuka untuk kontribusi! Jika kamu menemukan bug atau memiliki ide untuk fitur baru, jangan ragu untuk membuka issue atau mengirimkan pull request.
+
+## License
+
+Proyek ini dilisensikan di bawah [Lisensi MIT](LICENSE).

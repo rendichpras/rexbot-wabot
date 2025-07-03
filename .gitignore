@@ -1,0 +1,14 @@
+# Abaikan direktori 'node_modules'
+node_modules/
+
+# Abaikan direktori 'state'
+state/
+
+# Abaikan file 'config.js'
+config.js
+
+# Abaikan file 'database.json'
+database.json
+
+# Abaikan file 'package-lock.js'
+package-lock.json

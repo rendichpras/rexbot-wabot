@@ -1,0 +1,50 @@
+{
+  "name": "rexbot-wabot",
+  "version": "1.0.27",
+  "description": "Useless WhatsApp Bot",
+  "main": "index.js",
+  "directories": {
+    "commands": "commands",
+    "events": "events",
+    "tools": "tools"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install:adapter": "node install-adapter.js",
+    "start": "node .",
+    "start:pm2": "pm2 start ./index.js --name $(basename $(pwd))"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rendichpras/rexbot-wabot.git"
+  },
+  "keywords": [
+    "whatsapp",
+    "whatsapp-bot"
+  ],
+  "author": "Rendi Ichtiar Prasetyo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rendichpras/rexbot-wabot/issues"
+  },
+  "homepage": "https://github.com/rendichpras/rexbot-wabot#readme",
+  "dependencies": {
+    "@itsreimau/gktw": "^1.0.17",
+    "@mengkodingan/consolefy": "^1.0.1",
+    "@zanixongroup/uploader": "^2.1.1",
+    "axios": "^1.10.0",
+    "cfonts": "^3.3.0",
+    "didyoumean": "^1.2.2",
+    "jimp": "^0.16.1",
+    "link-preview-js": "^3.0.0",
+    "mime-types": "^2.1.35",
+    "moment-timezone": "^0.6.0",
+    "simpl.db": "^2.13.0",
+    "wa-sticker-formatter": "^4.4.4"
+  },
+  "optionalDependencies": {
+    "baileys-mysql": "^1.0.4",
+    "baileys-mongodb": "^1.0.9",
+    "baileys-firebase": "^1.0.1"
+  }
+}
