@@ -1,3 +1,5 @@
+const prisma = require("../../lib/prisma");
+
 module.exports = {
     name: "listsewagroup",
     aliases: ["listsewa"],
@@ -7,35 +9,36 @@ module.exports = {
     },
     code: async (ctx) => {
         try {
-            const groups = db.get("group");
-            const sewaGroups = [];
-
-            for (const groupId in groups) {
-                if (groups[groupId].sewa === true) {
-                    sewaGroups.push({
-                        id: groupId,
-                        expiration: groups[groupId].sewaExpiration
-                    });
+            // Ambil semua grup yang disewa
+            const sewaGroups = await prisma.group.findMany({
+                where: {
+                    sewa: true
+                },
+                select: {
+                    id: true,
+                    sewaExpiration: true
                 }
-            }
+            });
 
             let resultText = "";
             let groupMentions = [];
 
             for (const group of sewaGroups) {
                 const groupJid = `${group.id}@g.us`;
-                const groupSubject = (await ctx.group(groupJid)).name();
+                const groupInfo = await ctx.group(groupJid);
+                if (!groupInfo) continue; // Skip jika grup tidak ditemukan
 
+                const groupName = await groupInfo.name();
                 groupMentions.push({
                     groupJid,
-                    groupSubject
+                    groupSubject: groupName
                 });
 
-                if (group.expiration) {
-                    const daysLeft = Math.ceil((group.expiration - Date.now()) / (24 * 60 * 60 * 1000));
-                    resultText += `${formatter.quote(`@${groupJid} (${daysLeft} hari tersisa)`)}\n`;
+                if (group.sewaExpiration) {
+                    const daysLeft = Math.ceil(Number(group.sewaExpiration - BigInt(Date.now())) / (24 * 60 * 60 * 1000));
+                    resultText += `${formatter.quote(`${groupName} (${daysLeft} hari tersisa)`)}\n`;
                 } else {
-                    resultText += `${formatter.quote(`@${groupJid} (Sewa permanen)`)}\n`;
+                    resultText += `${formatter.quote(`${groupName} (Sewa permanen)`)}\n`;
                 }
             }
 

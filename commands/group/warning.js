@@ -1,3 +1,5 @@
+const prisma = require('../../lib/prisma');
+
 module.exports = {
     name: "warning",
     category: "group",
@@ -26,21 +28,44 @@ module.exports = {
 
         try {
             const groupId = ctx.getId(ctx.id);
-            const groupDb = await db.get(`group.${groupId}`) || {};
-            const warnings = groupDb?.warnings || {};
+            
+            let group = await prisma.group.findUnique({
+                where: { id: groupId }
+            });
+
+            if (!group) {
+                group = await prisma.group.create({
+                    data: {
+                        id: groupId,
+                        warnings: {},
+                        maxwarnings: 3
+                    }
+                });
+            }
+
+            const warnings = group.warnings || {};
             const current = warnings[accountId] || 0;
             const newWarning = current + 1;
+            const maxwarnings = group.maxwarnings || 3;
 
-            const maxwarnings = groupDb?.maxwarnings || 3;
             if (newWarning >= maxwarnings) {
                 await ctx.reply(formatter.quote(`⛔ Kamu telah menerima ${maxwarnings} warning dan akan dikeluarkan dari grup!`));
-                if (!config.system.restrict) await ctx.group().kick([senderJid]);
-                delete warnings[senderId];
-                return await db.set(`group.${groupId}.warnings`, warnings);
+                if (!config.system.restrict) await ctx.group().kick([accountJid]);
+                
+                delete warnings[accountId];
+                await prisma.group.update({
+                    where: { id: groupId },
+                    data: { warnings }
+                });
+                
+                return;
             }
 
             warnings[accountId] = newWarning;
-            await db.set(`group.${groupId}.warnings`, warnings);
+            await prisma.group.update({
+                where: { id: groupId },
+                data: { warnings }
+            });
 
             return await ctx.reply(formatter.quote(`✅ Warning diberikan! Sekarang warning @${accountId} menjadi ${newWarning}/${maxwarnings}.`), {
                 mentions: [accountJid]

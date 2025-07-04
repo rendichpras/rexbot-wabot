@@ -1,10 +1,17 @@
+const prisma = require("../../lib/prisma");
+
 module.exports = {
     name: "donate",
     aliases: ["donasi"],
     category: "information",
     code: async (ctx) => {
         try {
-            const customText = await db.get("bot.text.donate") || null;
+            const botSettings = await prisma.bot.findUnique({
+                where: { id: "bot" },
+                select: { settings: true }
+            });
+
+            const customText = botSettings?.settings?.donate || null;
             const text = customText ?
                 customText
                 .replace(/%tag%/g, `@${ctx.getId(ctx.sender.jid)}`)

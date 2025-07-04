@@ -35,7 +35,7 @@ module.exports = {
                 `${formatter.quote(`Waktu: ${moment.tz(config.system.timeZone).format("HH.mm.ss")}`)}\n` +
                 "\n" +
                 `${formatter.quote(`Bot Uptime: ${config.bot.uptime}`)}\n` +
-                `${formatter.quote(`Database: ${config.bot.dbSize} (Simpl.DB - JSON)`)}\n` +
+                `${formatter.quote(`Database: PostgreSQL (Prisma ORM)`)}\n` +
                 `${formatter.quote("Library: @itsreimau/gktw (Fork of @mengkodingan/ckptw)")}\n` +
                 "\n" +
                 `${formatter.italic("Jangan lupa berdonasi agar bot tetap online!")}\n` +

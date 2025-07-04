@@ -1,3 +1,5 @@
+const prisma = require("../../lib/prisma");
+
 module.exports = {
     name: "afk",
     category: "profile",
@@ -5,9 +7,25 @@ module.exports = {
         const input = ctx.args.join(" ") || null;
 
         try {
-            await db.set(`user.${ctx.getId(ctx.sender.jid)}.afk`, {
-                reason: input,
-                timestamp: Date.now()
+            const phoneNumber = ctx.getId(ctx.sender.jid);
+            
+            await prisma.user.upsert({
+                where: {
+                    phoneNumber: phoneNumber
+                },
+                create: {
+                    phoneNumber: phoneNumber,
+                    afk: {
+                        reason: input,
+                        timestamp: Date.now()
+                    }
+                },
+                update: {
+                    afk: {
+                        reason: input,
+                        timestamp: Date.now()
+                    }
+                }
             });
 
             return await ctx.reply(formatter.quote(`📴 Kamu akan AFK, ${input ? `dengan alasan "${input}"` : "tanpa alasan apapun"}.`));

@@ -1,3 +1,5 @@
+const prisma = require("../../lib/prisma");
+
 module.exports = {
     name: "menfess",
     aliases: ["conf", "confes", "confess", "menf", "menfes"],
@@ -19,19 +21,49 @@ module.exports = {
             formatter.quote(tools.msg.generateNotes(["Jangan gunakan spasi pada angka. Contoh: +62 8123-4567-8910, seharusnya +628123-4567-8910"]))
         );
 
-        const allMenfessDb = await db.get("menfess") || {};
-        const isSenderInMenfess = Object.values(allMenfessDb).some(m => m.from === senderId || m.to === senderId);
-        const isReceiverInMenfess = Object.values(allMenfessDb).some(m => m.from === targetId || m.to === targetId);
+        // Cek apakah pengirim atau penerima sedang dalam percakapan menfess
+        const activeMenfess = await prisma.menfess.findFirst({
+            where: {
+                active: true,
+                OR: [
+                    { fromNumber: senderId },
+                    { toNumber: senderId },
+                    { fromNumber: targetId },
+                    { toNumber: targetId }
+                ]
+            }
+        });
 
-        if (isSenderInMenfess) return await ctx.reply(formatter.quote("❎ Kamu tidak dapat mengirim menfess karena sedang terlibat dalam percakapan lain."));
-        if (isReceiverInMenfess) return await ctx.reply(formatter.quote("❎ Kamu tidak dapat mengirim menfess, karena dia sedang terlibat dalam percakapan lain."));
-        if (targetId === senderId) return await ctx.reply(formatter.quote("❎ Tidak dapat digunakan pada diri sendiri."));
+        if (activeMenfess?.fromNumber === senderId || activeMenfess?.toNumber === senderId) {
+            return await ctx.reply(formatter.quote("❎ Kamu tidak dapat mengirim menfess karena sedang terlibat dalam percakapan lain."));
+        }
+
+        if (activeMenfess?.fromNumber === targetId || activeMenfess?.toNumber === targetId) {
+            return await ctx.reply(formatter.quote("❎ Kamu tidak dapat mengirim menfess, karena dia sedang terlibat dalam percakapan lain."));
+        }
+
+        if (targetId === senderId) {
+            return await ctx.reply(formatter.quote("❎ Tidak dapat digunakan pada diri sendiri."));
+        }
 
         try {
+            // Generate Menfess ID menggunakan fungsi dari tools/cmd.js
+            const menfessId = await tools.cmd.generateMenfessId();
+
+            // Buat percakapan menfess baru
+            const newMenfess = await prisma.menfess.create({
+                data: {
+                    id: menfessId,
+                    fromNumber: senderId,
+                    toNumber: targetId,
+                    active: true
+                }
+            });
+
             await ctx.sendMessage(`${targetId}@s.whatsapp.net`, {
                 text: `${menfessText}\n` +
                     `${config.msg.readmore}\n` +
-                    formatter.quote(`Setiap pesan yang kamu kirim akan diteruskan ke orang tersebut. Jika ingin berhenti, cukup ketik ${formatter.monospace("delete")} atau ${formatter.monospace("stop")}.`),
+                    formatter.quote(`Setiap pesan yang kamu kirim akan diteruskan ke orang tersebut. Jika ingin berhenti, cukup ketik ${formatter.monospace("delete")} atau ${formatter.monospace("stop")}.\nID Menfess: ${newMenfess.id}`),
                 contextInfo: {
                     isForwarded: true,
                     forwardedNewsletterMessageInfo: {
@@ -42,12 +74,8 @@ module.exports = {
             }, {
                 quoted: tools.cmd.fakeMetaAiQuotedText("Seseorang telah mengirimi-mu menfess.")
             });
-            await db.set(`menfess.${Date.now()}`, {
-                from: senderId,
-                to: targetId
-            });
 
-            return await ctx.reply(formatter.quote(`✅ Pesan berhasil terkirim! Jika ingin berhenti, cukup ketik ${formatter.monospace("delete")} atau ${formatter.monospace("stop")}.`));
+            return await ctx.reply(formatter.quote(`✅ Pesan berhasil terkirim! Jika ingin berhenti, cukup ketik ${formatter.monospace("delete")} atau ${formatter.monospace("stop")}.\nID Menfess: ${newMenfess.id}`));
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);
         }

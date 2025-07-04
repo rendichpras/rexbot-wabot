@@ -3,6 +3,7 @@ const {
 } = require("node:child_process");
 const process = require("node:process");
 const util = require("node:util");
+const prisma = require("../../lib/prisma");
 
 module.exports = {
     name: "restart",
@@ -16,10 +17,25 @@ module.exports = {
 
         try {
             const waitMsg = await ctx.reply(config.msg.wait);
-            await db.set("bot.restart", {
-                jid: ctx.id,
-                key: waitMsg.key,
-                timestamp: Date.now()
+            
+            // Simpan informasi restart di database
+            await prisma.bot.upsert({
+                where: { id: "bot" },
+                create: {
+                    id: "bot",
+                    restart: {
+                        jid: ctx.id,
+                        key: waitMsg.key,
+                        timestamp: Date.now()
+                    }
+                },
+                update: {
+                    restart: {
+                        jid: ctx.id,
+                        key: waitMsg.key,
+                        timestamp: Date.now()
+                    }
+                }
             });
 
             return await util.promisify(exec)("pm2 restart $(basename $(pwd))"); // Hanya berfungsi saat menggunakan PM2

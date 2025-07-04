@@ -1,3 +1,5 @@
+const prisma = require("../../lib/prisma");
+
 module.exports = {
     name: "delpremiumuser",
     aliases: ["delpremuser", "delprem", "dpu"],
@@ -22,8 +24,18 @@ module.exports = {
         if (isOnWhatsApp.length === 0) return await ctx.reply(formatter.quote("❎ Akun tidak ada di WhatsApp!"));
 
         try {
-            await db.delete(`user.${senderId}.premium`);
-            await db.delete(`user.${senderId}.premiumExpiration`);
+            const userId = ctx.getId(userJid);
+
+            // Update user untuk menghapus status premium
+            await prisma.user.update({
+                where: {
+                    phoneNumber: userId
+                },
+                data: {
+                    premium: false,
+                    premiumExpiration: null
+                }
+            });
 
             const flag = tools.cmd.parseFlag(ctx.args.join(" "), {
                 "-s": {

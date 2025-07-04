@@ -1,3 +1,5 @@
+const prisma = require('../../lib/prisma');
+
 module.exports = {
     name: "setmaxwarnings",
     category: "group",
@@ -16,9 +18,21 @@ module.exports = {
 
         try {
             const groupId = ctx.getId(ctx.id);
-            await db.set(`group.${groupId}.maxwarnings`, input);
+            
+            // Update atau buat grup baru dengan maxwarnings yang ditentukan
+            await prisma.group.upsert({
+                where: { id: groupId },
+                create: {
+                    id: groupId,
+                    maxwarnings: input,
+                    warnings: {} // Inisialisasi warnings kosong
+                },
+                update: {
+                    maxwarnings: input
+                }
+            });
 
-            return await ctx.reply(formatter.quote(`✅ Berhasil mengubah max warnings!`));
+            return await ctx.reply(formatter.quote(`✅ Berhasil mengubah max warnings menjadi ${input}!`));
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);
         }

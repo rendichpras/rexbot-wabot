@@ -1,3 +1,5 @@
+const prisma = require("../../lib/prisma");
+
 module.exports = {
     name: "banuser",
     aliases: ["ban", "bu"],
@@ -22,7 +24,21 @@ module.exports = {
         if (isOnWhatsApp.length === 0) return await ctx.reply(formatter.quote("❎ Akun tidak ada di WhatsApp!"));
 
         try {
-            await db.set(`user.${ctx.getId(userJid)}.banned`, true);
+            const userId = ctx.getId(userJid);
+
+            // Update atau buat user baru dengan status banned
+            await prisma.user.upsert({
+                where: {
+                    phoneNumber: userId
+                },
+                create: {
+                    phoneNumber: userId,
+                    banned: true
+                },
+                update: {
+                    banned: true
+                }
+            });
 
             const flag = tools.cmd.parseFlag(ctx.args.join(" "), {
                 "-s": {

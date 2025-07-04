@@ -1,3 +1,5 @@
+const prisma = require("../../lib/prisma");
+
 module.exports = {
     name: "mode",
     alises: ["m"],
@@ -20,18 +22,28 @@ module.exports = {
         }
 
         try {
-            switch (input.toLowerCase()) {
-                case "group":
-                case "private":
-                case "public":
-                case "self":
-                    await db.set("bot.mode", input.toLowerCase());
-                    break;
-                default:
-                    return await ctx.reply(formatter.quote("❎ Mode tidak valid."));
+            const validModes = ["group", "private", "public", "self"];
+            const mode = input.toLowerCase();
+
+            if (!validModes.includes(mode)) {
+                return await ctx.reply(formatter.quote("❎ Mode tidak valid."));
             }
 
-            return await ctx.reply(formatter.quote(`✅ Berhasil mengubah mode ke ${input}!`));
+            // Update mode bot
+            await prisma.bot.upsert({
+                where: {
+                    id: "bot"
+                },
+                create: {
+                    id: "bot",
+                    mode: mode
+                },
+                update: {
+                    mode: mode
+                }
+            });
+
+            return await ctx.reply(formatter.quote(`✅ Berhasil mengubah mode ke ${mode}!`));
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);
         }

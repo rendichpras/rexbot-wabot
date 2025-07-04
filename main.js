@@ -7,6 +7,7 @@ const {
 } = require("@itsreimau/gktw");
 const path = require("node:path");
 const util = require("node:util");
+const prisma = require('./lib/prisma');
 
 // Konfigurasi bot dari file 'config.js'
 const {
@@ -26,6 +27,20 @@ const adapters = {
 const selectedAuthAdapter = adapters[authAdapter.adapter] ? adapters[authAdapter.adapter]() : null;
 
 consolefy.log("Connecting..."); // Logging proses koneksi
+
+// Pastikan data bot ada di database
+async function initBotSettings() {
+    const botSettings = await prisma.bot.upsert({
+        where: { id: 'bot' },
+        create: {
+            id: 'bot',
+            mode: 'public',
+            settings: {}
+        },
+        update: {}
+    });
+    return botSettings;
+}
 
 // Buat instance bot dengan pengaturan yang sesuai
 const bot = new Client({
@@ -51,4 +66,7 @@ middleware(bot);
 const cmd = new CommandHandler(bot, path.resolve(__dirname, "commands"));
 cmd.load();
 
-bot.launch().catch(error => consolefy.error(`Error: ${util.format(error)}`)); // Luncurkan bot
+// Inisialisasi bot settings dan jalankan bot
+initBotSettings()
+    .then(() => bot.launch())
+    .catch(error => consolefy.error(`Error: ${util.format(error)}`));

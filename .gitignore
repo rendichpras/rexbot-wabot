@@ -12,3 +12,9 @@ database.json
 
 # Abaikan file 'package-lock.js'
 package-lock.json
+
+# Abaikan file '.env'
+.env
+
+# Abaikan folder 'migrations'
+migrations/

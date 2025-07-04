@@ -1,3 +1,5 @@
+const prisma = require("../../lib/prisma");
+
 module.exports = {
     name: "listpremiumuser",
     aliases: ["listprem", "listpremium"],
@@ -7,29 +9,29 @@ module.exports = {
     },
     code: async (ctx) => {
         try {
-            const users = db.get("user");
-            const premiumUsers = [];
-
-            for (const userId in users) {
-                if (users[userId].premium === true) {
-                    premiumUsers.push({
-                        id: userId,
-                        expiration: users[userId].premiumExpiration
-                    });
+            // Ambil semua user premium
+            const premiumUsers = await prisma.user.findMany({
+                where: {
+                    premium: true
+                },
+                select: {
+                    phoneNumber: true,
+                    premiumExpiration: true
                 }
-            }
+            });
 
             let resultText = "";
             let userMentions = [];
 
             for (const user of premiumUsers) {
-                userMentions.push(`${user.id}@s.whatsapp.net`);
+                const userJid = `${user.phoneNumber}@s.whatsapp.net`;
+                userMentions.push(userJid);
 
-                if (user.expiration) {
-                    const daysLeft = Math.ceil((user.expiration - Date.now()) / (24 * 60 * 60 * 1000));
-                    resultText += `${formatter.quote(`@${user.id} (${daysLeft} hari tersisa)`)}\n`;
+                if (user.premiumExpiration) {
+                    const daysLeft = Math.ceil(Number(user.premiumExpiration - BigInt(Date.now())) / (24 * 60 * 60 * 1000));
+                    resultText += `${formatter.quote(`@${user.phoneNumber} (${daysLeft} hari tersisa)`)}\n`;
                 } else {
-                    resultText += `${formatter.quote(`@${user.id} (Premium permanen)`)}\n`;
+                    resultText += `${formatter.quote(`@${user.phoneNumber} (Premium permanen)`)}\n`;
                 }
             }
 

@@ -1,3 +1,4 @@
+const prisma = require('../../lib/prisma');
 const session = new Map();
 
 module.exports = {
@@ -126,12 +127,34 @@ module.exports = {
                                 winner = "Seri!";
                             } else if (result === 1) {
                                 winner = `@${senderId} menang!`;
-                                await db.add(`user.${senderId}.coin`, currentGame.coin);
-                                await db.add(`user.${senderId}.winGame`, 1);
+                                await prisma.user.upsert({
+                                    where: { phoneNumber: senderId },
+                                    create: {
+                                        phoneNumber: senderId,
+                                        coin: currentGame.coin,
+                                        winGame: 1,
+                                        username: `@user_${senderId.slice(-6)}`
+                                    },
+                                    update: {
+                                        coin: { increment: currentGame.coin },
+                                        winGame: { increment: 1 }
+                                    }
+                                });
                             } else {
                                 winner = `@${accountId} menang!`;
-                                await db.add(`user.${accountId}.coin`, currentGame.coin);
-                                await db.add(`user.${accountId}.winGame`, 1);
+                                await prisma.user.upsert({
+                                    where: { phoneNumber: accountId },
+                                    create: {
+                                        phoneNumber: accountId,
+                                        coin: currentGame.coin,
+                                        winGame: 1,
+                                        username: `@user_${accountId.slice(-6)}`
+                                    },
+                                    update: {
+                                        coin: { increment: currentGame.coin },
+                                        winGame: { increment: 1 }
+                                    }
+                                });
                             }
 
                             await ctx.reply({

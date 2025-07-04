@@ -1,3 +1,5 @@
+const prisma = require("../../lib/prisma");
+
 module.exports = {
     name: "addcoinuser",
     aliases: ["acu", "addcoin"],
@@ -24,7 +26,21 @@ module.exports = {
         if (isOnWhatsApp.length === 0) return await ctx.reply(formatter.quote("❎ Akun tidak ada di WhatsApp!"));
 
         try {
-            await db.add(`user.${ctx.getId(userJid)}.coin`, coinAmount);
+            // Update atau buat user baru dengan menambahkan coin
+            await prisma.user.upsert({
+                where: {
+                    phoneNumber: ctx.getId(userJid)
+                },
+                create: {
+                    phoneNumber: ctx.getId(userJid),
+                    coin: coinAmount
+                },
+                update: {
+                    coin: {
+                        increment: coinAmount
+                    }
+                }
+            });
 
             const flag = tools.cmd.parseFlag(ctx.args.join(" "), {
                 "-s": {

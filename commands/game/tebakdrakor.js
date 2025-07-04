@@ -46,8 +46,25 @@ module.exports = {
 
                 if (participantAnswer === game.answer) {
                     session.delete(ctx.id);
-                    await db.add(`user.${participantId}.coin`, game.coin);
-                    await db.add(`user.${participantId}.winGame`, 1);
+                    
+                    await prisma.user.upsert({
+                        where: { phoneNumber: participantId },
+                        create: {
+                            phoneNumber: participantId,
+                            coin: game.coin,
+                            winGame: 1,
+                            username: `@user_${participantId.slice(-6)}`
+                        },
+                        update: {
+                            coin: {
+                                increment: game.coin
+                            },
+                            winGame: {
+                                increment: 1
+                            }
+                        }
+                    });
+                    
                     await ctx.sendMessage(ctx.id, {
                         text: `${formatter.quote("💯 Benar!")}\n` +
                             formatter.quote(`+${game.coin} Koin`)

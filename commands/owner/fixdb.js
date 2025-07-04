@@ -1,3 +1,5 @@
+const prisma = require("../../lib/prisma");
+
 module.exports = {
     name: "fixdb",
     aliases: ["fixdatabase"],
@@ -10,7 +12,8 @@ module.exports = {
 
         if (!input) return await ctx.reply(
             `${formatter.quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-            formatter.quote(tools.msg.generateCmdExample(ctx.used, "user"))
+            formatter.quote(tools.msg.generateCmdExample(ctx.used, "user")) +
+            formatter.quote(tools.msg.generateNotes([`Ketik ${formatter.monospace(`${ctx.used.prefix + ctx.used.command} list`)} untuk melihat daftar.`]))
         );
 
         if (["l", "list"].includes(input)) {
@@ -20,125 +23,91 @@ module.exports = {
 
         try {
             const waitMsg = await ctx.reply(config.msg.wait);
-            const dbJSON = await db.toJSON();
-            const data = {
-                user: dbJSON.user || {},
-                group: dbJSON.group || {},
-                menfess: dbJSON.menfess || {}
+
+            const processUsers = async () => {
+                await ctx.editMessage(waitMsg.key, formatter.quote("🔄 Memproses data user..."));
+                const users = await prisma.user.findMany();
+                
+                for (const user of users) {
+                    // Validasi dan perbaiki data user
+                    const updatedData = {
+                        phoneNumber: user.phoneNumber,
+                        username: user.username || "",
+                        coin: typeof user.coin === "number" ? user.coin : 0,
+                        xp: typeof user.xp === "number" ? user.xp : 0,
+                        level: typeof user.level === "number" ? user.level : 0,
+                        winGame: typeof user.winGame === "number" ? user.winGame : 0,
+                        premium: typeof user.premium === "boolean" ? user.premium : false,
+                        premiumExpiration: user.premiumExpiration || null,
+                        banned: typeof user.banned === "boolean" ? user.banned : false,
+                        autolevelup: typeof user.autolevelup === "boolean" ? user.autolevelup : true
+                    };
+
+                    // Update user dengan data yang sudah divalidasi
+                    await prisma.user.update({
+                        where: { id: user.id },
+                        data: updatedData
+                    });
+                }
             };
 
-            const filteredData = (category, item) => {
-                const mappings = {
-                    user: {
-                        afk: {
-                            reason: "string",
-                            timestamp: "number"
-                        },
-                        banned: "boolean",
-                        coin: "number",
-                        lastClaim: {
-                            daily: "number",
-                            weekly: "number",
-                            monthly: "number",
-                            yearly: "number"
-                        },
-                        lastSentMsg: {
-                            banned: "number",
-                            cooldown: "number",
-                            admin: "number",
-                            botAdmin: "number",
-                            coin: "number",
-                            group: "number",
-                            owner: "number",
-                            premium: "number",
-                            private: "number",
-                            restrict: "number"
-                        },
-                        level: "number",
-                        premium: "boolean",
-                        premiumExpiration: "number",
-                        uid: "string",
-                        username: "string",
-                        winGame: "number",
-                        xp: "number"
-                    },
-                    group: {
-                        maxwarnings: "number",
-                        mute: "object",
-                        mutebot: "boolean",
-                        text: {
-                            goodbye: "string",
-                            intro: "string",
-                            welcome: "string"
-                        },
-                        option: {
-                            antiaudio: "boolean",
-                            antidocument: "boolean",
-                            antigif: "boolean",
-                            antiimage: "boolean",
-                            antilink: "boolean",
-                            antinfsw: "boolean",
-                            antisticker: "boolean",
-                            antitagsw: "boolean",
-                            antitoxic: "boolean",
-                            antivideo: "boolean",
-                            autokick: "boolean",
-                            gamerestrict: "boolean",
-                            welcome: "boolean"
-                        },
-                        sewa: "boolean",
-                        sewaExpiration: "number",
-                        spam: "object",
-                        warnings: "object"
-                    },
-                    menfess: {
-                        from: "string",
-                        to: "string"
-                    }
-                };
+            const processGroups = async () => {
+                await ctx.editMessage(waitMsg.key, formatter.quote("🔄 Memproses data group..."));
+                const groups = await prisma.group.findMany();
+                
+                for (const group of groups) {
+                    // Validasi dan perbaiki data group
+                    const updatedData = {
+                        id: group.id,
+                        mutebot: group.mutebot || null,
+                        mute: Array.isArray(group.mute) ? group.mute : [],
+                        sewa: typeof group.sewa === "boolean" ? group.sewa : false,
+                        sewaExpiration: group.sewaExpiration || null,
+                        option: typeof group.option === "object" ? group.option : {},
+                        text: typeof group.text === "object" ? group.text : null,
+                        warnings: typeof group.warnings === "object" ? group.warnings : {},
+                        maxwarnings: typeof group.maxwarnings === "number" ? group.maxwarnings : 3
+                    };
 
-                const validate = (obj, map) => {
-                    if (typeof map === "string") {
-                        return typeof obj === map;
-                    } else if (typeof map === "object") {
-                        if (typeof obj !== "object" || obj === null) return false;
-                        const result = {};
-                        for (const key in map) {
-                            if (validate(obj[key], map[key])) {
-                                result[key] = obj[key];
-                            }
-                        }
-                        return result;
-                    }
-                    return false;
-                };
-
-                const schema = mappings[category];
-                const result = validate(item, schema);
-                return result || {};
+                    // Update group dengan data yang sudah divalidasi
+                    await prisma.group.update({
+                        where: { id: group.id },
+                        data: updatedData
+                    });
+                }
             };
 
-            const processData = async (category, data) => {
-                await ctx.editMessage(waitMsg.key, formatter.quote(`🔄 Memproses data ${category}...`));
-                for (const id of Object.keys(data)) {
-                    const item = data[id] || {};
-                    const filtered = filteredData(category, item);
+            const processMenfess = async () => {
+                await ctx.editMessage(waitMsg.key, formatter.quote("🔄 Memproses data menfess..."));
+                const menfessChats = await prisma.menfess.findMany();
+                
+                for (const chat of menfessChats) {
+                    // Validasi dan perbaiki data menfess
+                    const updatedData = {
+                        conversationId: chat.conversationId,
+                        fromNumber: chat.fromNumber,
+                        toNumber: chat.toNumber,
+                        active: typeof chat.active === "boolean" ? chat.active : true
+                    };
 
-                    if (!/^\d+$/.test(id) || Object.keys(filtered).length === 0) {
-                        await db.delete(`${category}.${id}`);
-                    } else {
-                        await db.set(`${category}.${id}`, filtered);
-                    }
+                    // Update menfess dengan data yang sudah divalidasi
+                    await prisma.menfess.update({
+                        where: { id: chat.id },
+                        data: updatedData
+                    });
                 }
             };
 
             switch (input) {
                 case "user":
-                case "group":
-                case "menfess":
-                    await processData(input, data[input]);
+                    await processUsers();
                     break;
-
+                case "group":
+                    await processGroups();
+                    break;
+                case "menfess":
+                    await processMenfess();
+                    break;
                 default:
                     return await ctx.reply(formatter.quote(`❎ Key "${input}" tidak valid!`));
             }

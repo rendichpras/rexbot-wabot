@@ -1,3 +1,5 @@
+const prisma = require('../../lib/prisma');
+
 module.exports = {
     name: "setoption",
     aliases: ["setopt"],
@@ -21,61 +23,70 @@ module.exports = {
             return await ctx.reply(listText);
         }
 
-        if (["s", "status"].includes(input.toLowerCase())) {
-            const groupId = ctx.getId(ctx.id);
-            const groupOption = await db.get(`group.${groupId}.option`) || {};
+        const groupId = ctx.getId(ctx.id);
+        let group = await prisma.group.findUnique({
+            where: { id: groupId },
+            select: { option: true }
+        });
 
+        if (["s", "status"].includes(input.toLowerCase())) {
+            const options = group?.option || {};
+            
             return await ctx.reply(
-                `${formatter.quote(`Antiaudio: ${groupOption.antiaudio ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${formatter.quote(`Antidocument: ${groupOption.antidocument ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${formatter.quote(`Antigif: ${groupOption.antigif ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${formatter.quote(`Antiimage: ${groupOption.antiimage ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${formatter.quote(`Antilink: ${groupOption.antilink ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${formatter.quote(`Antinsfw: ${groupOption.antinsfw ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${formatter.quote(`Antispam: ${groupOption.antispam ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${formatter.quote(`Antisticker: ${groupOption.antisticker ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${formatter.quote(`Antitagsw: ${groupOption.antitagsw ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${formatter.quote(`Antitoxic: ${groupOption.antitoxic ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${formatter.quote(`Antivideo: ${groupOption.antivideo ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${formatter.quote(`Autokick: ${groupOption.autokick ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${formatter.quote(`Gamerestrict: ${groupOption.gamerestrict ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${formatter.quote(`Welcome: ${groupOption.welcome ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${formatter.quote(`Antiaudio: ${options.antiaudio ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${formatter.quote(`Antidocument: ${options.antidocument ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${formatter.quote(`Antigif: ${options.antigif ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${formatter.quote(`Antiimage: ${options.antiimage ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${formatter.quote(`Antilink: ${options.antilink ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${formatter.quote(`Antinsfw: ${options.antinsfw ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${formatter.quote(`Antispam: ${options.antispam ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${formatter.quote(`Antisticker: ${options.antisticker ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${formatter.quote(`Antitagsw: ${options.antitagsw ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${formatter.quote(`Antitoxic: ${options.antitoxic ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${formatter.quote(`Antivideo: ${options.antivideo ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${formatter.quote(`Autokick: ${options.autokick ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${formatter.quote(`Gamerestrict: ${options.gamerestrict ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${formatter.quote(`Welcome: ${options.welcome ? "Aktif" : "Nonaktif"}`)}\n` +
                 "\n" +
                 config.msg.footer
             );
         }
 
         try {
-            const groupId = ctx.getId(ctx.id);
-            let setKey;
+            const validOptions = [
+                "antiaudio", "antidocument", "antigif", "antiimage",
+                "antilink", "antinsfw", "antispam", "antisticker",
+                "antitagsw", "antitoxic", "antivideo", "autokick",
+                "gamerestrict", "welcome"
+            ];
 
-            switch (input.toLowerCase()) {
-                case "antiaudio":
-                case "antidocument":
-                case "antigif":
-                case "antiimage":
-                case "antilink":
-                case "antinsfw":
-                case "antispam":
-                case "antisticker":
-                case "antitagsw":
-                case "antitoxic":
-                case "antivideo":
-                case "autokick":
-                case "gamerestrict":
-                case "welcome":
-                    setKey = `group.${groupId}.option.${input.toLowerCase()}`;
-                    break;
-                default:
-                    return await ctx.reply(formatter.quote(`❎ Opsi '${input}' tidak valid!`));
+            const option = input.toLowerCase();
+            if (!validOptions.includes(option)) {
+                return await ctx.reply(formatter.quote(`❎ Opsi '${input}' tidak valid!`));
             }
 
-            const currentStatus = await db.get(setKey);
-            const newStatus = !currentStatus;
+            const currentOptions = group?.option || {};
+            const newStatus = !currentOptions[option];
+            
+            // Update opsi grup
+            await prisma.group.upsert({
+                where: { id: groupId },
+                create: {
+                    id: groupId,
+                    option: {
+                        [option]: newStatus
+                    }
+                },
+                update: {
+                    option: {
+                        ...currentOptions,
+                        [option]: newStatus
+                    }
+                }
+            });
 
-            await db.set(setKey, newStatus);
             const statusText = newStatus ? "diaktifkan" : "dinonaktifkan";
-            return await ctx.reply(formatter.quote(`✅ Opsi '${input}' berhasil ${statusText}!`));
+            return await ctx.reply(formatter.quote(`✅ Opsi '${option}' berhasil ${statusText}!`));
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);
         }

@@ -1,3 +1,5 @@
+const prisma = require("../../lib/prisma");
+
 module.exports = {
     name: "broadcastgc",
     aliases: ["bc", "bcgc", "broadcast"],
@@ -18,16 +20,46 @@ module.exports = {
         );
 
         if (["b", "blacklist"].includes(input) && ctx.isGroup()) {
-            let blacklist = await db.get("bot.blacklistBroadcast") || [];
+            // Ambil data bot yang ada
+            const botSettings = await prisma.bot.findUnique({
+                where: { id: "bot" },
+                select: { settings: true }
+            }) || { settings: {} };
 
-            const groupIndex = blacklist.indexOf(ctx.id);
+            const blacklist = botSettings.settings?.blacklistBroadcast || [];
+            const groupId = ctx.getId(ctx.id);
+
+            const groupIndex = blacklist.indexOf(groupId);
             if (groupIndex > -1) {
+                // Hapus grup dari blacklist
                 blacklist.splice(groupIndex, 1);
-                await db.set("bot.blacklistBroadcast", blacklist);
+                await prisma.bot.update({
+                    where: { id: "bot" },
+                    data: {
+                        settings: {
+                            ...botSettings.settings,
+                            blacklistBroadcast: blacklist
+                        }
+                    }
+                });
                 return await ctx.reply("✅ Grup ini telah dihapus dari blacklist broadcast");
             } else {
-                blacklist.push(ctx.id);
-                await db.set("bot.blacklistBroadcast", blacklist);
+                // Tambah grup ke blacklist
+                await prisma.bot.upsert({
+                    where: { id: "bot" },
+                    create: {
+                        id: "bot",
+                        settings: {
+                            blacklistBroadcast: [groupId]
+                        }
+                    },
+                    update: {
+                        settings: {
+                            ...botSettings.settings,
+                            blacklistBroadcast: [...blacklist, groupId]
+                        }
+                    }
+                });
                 return await ctx.reply("✅ Grup ini telah ditambahkan ke blacklist broadcast");
             }
         }
@@ -44,7 +76,12 @@ module.exports = {
             const text = flag?.input;
 
             const groupIds = Object.values(await ctx.core.groupFetchAllParticipating()).map(g => g.id);
-            const blacklist = await db.get("bot.blacklistBroadcast") || [];
+            const botSettings = await prisma.bot.findUnique({
+                where: { id: "bot" },
+                select: { settings: true }
+            }) || { settings: {} };
+
+            const blacklist = botSettings.settings?.blacklistBroadcast || [];
             const filteredGroupIds = groupIds.filter(groupId => !blacklist.includes(groupId));
 
             const waitMsg = await ctx.reply(formatter.quote(`🔄 Mengirim siaran ke ${filteredGroupIds.length} grup, perkiraan waktu: ${tools.msg.convertMsToDuration(filteredGroupIds.length * 0.5 * 1000)}`));

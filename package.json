@@ -1,6 +1,6 @@
 {
   "name": "rexbot-wabot",
-  "version": "1.0.27",
+  "version": "1.0.0",
   "description": "Useless WhatsApp Bot",
   "main": "index.js",
   "directories": {
@@ -31,6 +31,7 @@
   "dependencies": {
     "@itsreimau/gktw": "^1.0.17",
     "@mengkodingan/consolefy": "^1.0.1",
+    "@prisma/client": "^6.11.1",
     "@zanixongroup/uploader": "^2.1.1",
     "axios": "^1.10.0",
     "cfonts": "^3.3.0",
@@ -39,12 +40,13 @@
     "link-preview-js": "^3.0.0",
     "mime-types": "^2.1.35",
     "moment-timezone": "^0.6.0",
+    "prisma": "^6.11.1",
     "simpl.db": "^2.13.0",
     "wa-sticker-formatter": "^4.4.4"
   },
   "optionalDependencies": {
-    "baileys-mysql": "^1.0.4",
+    "baileys-firebase": "^1.0.1",
     "baileys-mongodb": "^1.0.9",
-    "baileys-firebase": "^1.0.1"
+    "baileys-mysql": "^1.0.4"
   }
 }

@@ -1,5 +1,6 @@
 const axios = require("axios");
 const didYouMean = require("didyoumean");
+const prisma = require('../../lib/prisma');
 
 const session = new Map();
 
@@ -49,7 +50,18 @@ module.exports = {
                     game.answers.delete(participantAnswer);
                     game.participants.add(participantId);
 
-                    await db.add(`user.${participantId}.coin`, game.coin.answered);
+                    await prisma.user.upsert({
+                        where: { phoneNumber: participantId },
+                        create: {
+                            phoneNumber: participantId,
+                            coin: game.coin.answered,
+                            username: `@user_${participantId.slice(-6)}`
+                        },
+                        update: {
+                            coin: { increment: game.coin.answered }
+                        }
+                    });
+
                     await ctx.sendMessage(ctx.id, {
                         text: formatter.quote(`✅ ${tools.msg.ucwords(participantAnswer)} benar! Jawaban tersisa: ${game.answers.size}`)
                     }, {
@@ -59,8 +71,19 @@ module.exports = {
                     if (game.answers.size === 0) {
                         session.delete(ctx.id);
                         for (const participant of game.participants) {
-                            await db.add(`user.${participant}.coin`, game.coin.allAnswered);
-                            await db.add(`user.${participant}.winGame`, 1);
+                            await prisma.user.upsert({
+                                where: { phoneNumber: participant },
+                                create: {
+                                    phoneNumber: participant,
+                                    coin: game.coin.allAnswered,
+                                    winGame: 1,
+                                    username: `@user_${participant.slice(-6)}`
+                                },
+                                update: {
+                                    coin: { increment: game.coin.allAnswered },
+                                    winGame: { increment: 1 }
+                                }
+                            });
                         }
                         await ctx.sendMessage(ctx.id, {
                             text: formatter.quote(`🎉 Selamat! Semua jawaban telah terjawab! Setiap anggota yang menjawab mendapat ${game.coin.allAnswered} koin.`)

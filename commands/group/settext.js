@@ -1,3 +1,5 @@
+const prisma = require('../../lib/prisma');
+
 module.exports = {
     name: "settext",
     aliases: ["settxt"],
@@ -11,37 +13,69 @@ module.exports = {
         const key = ctx.args[0] || null;
         const text = ctx.args.slice(1).join(" ") || ctx?.quoted?.conversation || (ctx.quoted && ((Object.values(ctx.quoted).find(v => v?.text || v?.caption)?.text) || (Object.values(ctx.quoted).find(v => v?.text || v?.caption)?.caption))) || null;
 
+        
+        if (["l", "list"].includes(key.toLowerCase())) {
+            const listText = await tools.list.get("settext");
+            return await ctx.reply(listText);
+        }
+        
         if (!key || !text) return await ctx.reply(
             `${formatter.quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
             `${formatter.quote(tools.msg.generateCmdExample(ctx.used, "welcome Selamat datang di grup!"))}\n` +
             formatter.quote(tools.msg.generateNotes([`Ketik ${formatter.monospace(`${ctx.used.prefix + ctx.used.command} list`)} untuk melihat daftar.`, "Balas atau quote pesan untuk menjadikan teks sebagai input target, jika teks memerlukan baris baru.", `Gunakan ${formatter.monospace("delete")} sebagai teks untuk menghapus teks yang disimpan sebelumnya.`]))
         );
 
-        if (["l", "list"].includes(key.toLowerCase())) {
-            const listText = await tools.list.get("settext");
-            return await ctx.reply(listText);
-        }
-
         try {
             const groupId = ctx.getId(ctx.id);
-            let setKey;
+            const validKeys = ["goodbye", "intro", "welcome"];
+            const textKey = key.toLowerCase();
 
-            switch (key.toLowerCase()) {
-                case "goodbye":
-                case "intro":
-                case "welcome":
-                    setKey = `group.${groupId}.text.${key.toLowerCase()}`;
-                    break;
-                default:
-                    return await ctx.reply(formatter.quote(`❎ Teks '${key}' tidak valid!`));
+            if (!validKeys.includes(textKey)) {
+                return await ctx.reply(formatter.quote(`❎ Teks '${key}' tidak valid!`));
             }
 
+            let group = await prisma.group.findUnique({
+                where: { id: groupId },
+                select: { text: true }
+            });
+
+            const currentTexts = group?.text || {};
+
             if (["d", "delete"].includes(text.toLowerCase())) {
-                await db.delete(setKey);
+                // Hapus teks spesifik
+                delete currentTexts[textKey];
+                
+                await prisma.group.upsert({
+                    where: { id: groupId },
+                    create: {
+                        id: groupId,
+                        text: {}
+                    },
+                    update: {
+                        text: currentTexts
+                    }
+                });
+
                 return await ctx.reply(formatter.quote(`🗑️ Pesan untuk teks '${key}' berhasil dihapus!`));
             }
 
-            await db.set(setKey, text);
+            // Update atau tambah teks baru
+            await prisma.group.upsert({
+                where: { id: groupId },
+                create: {
+                    id: groupId,
+                    text: {
+                        [textKey]: text
+                    }
+                },
+                update: {
+                    text: {
+                        ...currentTexts,
+                        [textKey]: text
+                    }
+                }
+            });
+
             return await ctx.reply(formatter.quote(`✅ Pesan untuk teks '${key}' berhasil disimpan!`));
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);

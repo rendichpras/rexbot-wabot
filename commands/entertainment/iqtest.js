@@ -1,3 +1,5 @@
+const prisma = require('../../lib/prisma');
+
 module.exports = {
     name: "iqtest",
     aliases: ["iq", "testiq"],
@@ -6,8 +8,13 @@ module.exports = {
         coin: 10
     },
     code: async (ctx) => {
-        const winGame = await db.get(`user.${ctx.getId(ctx.sender.jid)}.winGame`) || 0;
+        const senderId = ctx.getId(ctx.sender.jid);
+        const user = await prisma.user.findUnique({
+            where: { phoneNumber: senderId },
+            select: { winGame: true }
+        });
 
+        const winGame = user?.winGame || 0;
         let iqScore;
         let feedback;
 

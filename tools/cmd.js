@@ -4,6 +4,7 @@ const uploader = require("@zanixongroup/uploader");
 const axios = require("axios");
 const didYouMean = require("didyoumean");
 const util = require("node:util");
+const prisma = require("../lib/prisma");
 
 const formatBotName = (botName) => {
     if (!botName) return null;
@@ -258,11 +259,32 @@ async function upload(buffer, type = "any", host = config.system.uploaderHost) {
     return null;
 }
 
+async function generateMenfessId() {
+    // Cari menfess terakhir untuk mendapatkan nomor urut
+    const lastMenfess = await prisma.menfess.findFirst({
+        orderBy: {
+            id: 'desc'
+        }
+    });
+
+    let nextNumber = 1;
+    if (lastMenfess) {
+        // Jika ada menfess sebelumnya, ambil nomor dari ID terakhir
+        const lastNumber = parseInt(lastMenfess.id.substring(2));
+        nextNumber = lastNumber + 1;
+    }
+
+    // Format nomor menjadi 6 digit dengan leading zeros
+    const formattedNumber = String(nextNumber).padStart(6, '0');
+    return `MF${formattedNumber}`;
+}
+
 module.exports = {
     checkMedia,
     checkQuotedMedia,
     fakeMetaAiQuotedText,
     generateUID,
+    generateMenfessId,
     getRandomElement,
     handleError,
     isCmd,

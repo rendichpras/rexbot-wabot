@@ -1,3 +1,5 @@
+const prisma = require("../../lib/prisma");
+
 module.exports = {
     name: "setprofile",
     aliases: ["set", "setp", "setprof"],
@@ -28,19 +30,44 @@ module.exports = {
                     if (!input) return await ctx.reply(formatter.quote("❎ Mohon masukkan username yang ingin digunakan."));
                     if (/[^a-zA-Z0-9._-]/.test(input)) return await ctx.reply(formatter.quote("❎ Username hanya boleh berisi huruf, angka, titik (.), underscore (_) atau tanda hubung (-)."));
 
-                    const usernameTaken = Object.values(await db.get("user") || {}).some(user => user.username === input);
-                    if (usernameTaken) return await ctx.reply(formatter.quote("❎ Username tersebut sudah digunakan oleh pengguna lain."));
+                    // Cek username sudah dipakai atau belum
+                    const existingUser = await prisma.user.findFirst({
+                        where: {
+                            username: `@${input}`
+                        }
+                    });
 
-                    const username = `@${input}`
-                    await db.set(`user.${senderId}.username`, username);
+                    if (existingUser) return await ctx.reply(formatter.quote("❎ Username tersebut sudah digunakan oleh pengguna lain."));
+
+                    const username = `@${input}`;
+                    await prisma.user.upsert({
+                        where: { phoneNumber: senderId },
+                        create: {
+                            phoneNumber: senderId,
+                            username: username
+                        },
+                        update: { username: username }
+                    });
+
                     return await ctx.reply(formatter.quote(`✅ Username berhasil diubah menjadi '${username}'!`));
                     break;
                 }
                 case "autolevelup": {
-                    const setKey = `user.${senderId}.autolevelup`;
-                    const currentStatus = await db.get(setKey) || false;
-                    const newStatus = !currentStatus;
-                    await db.set(setKey, newStatus);
+                    const user = await prisma.user.findUnique({
+                        where: { phoneNumber: senderId }
+                    });
+
+                    const newStatus = !(user?.autolevelup ?? false);
+                    
+                    await prisma.user.upsert({
+                        where: { phoneNumber: senderId },
+                        create: {
+                            phoneNumber: senderId,
+                            autolevelup: newStatus,
+                            username: `@user_${senderId.slice(-6)}`
+                        },
+                        update: { autolevelup: newStatus }
+                    });
 
                     const statusText = newStatus ? "diaktifkan" : "dinonaktifkan";
                     return await ctx.reply(formatter.quote(`✅ Fitur '${command}' berhasil ${statusText}!`));

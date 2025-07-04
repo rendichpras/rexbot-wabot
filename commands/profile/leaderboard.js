@@ -1,3 +1,5 @@
+const prisma = require("../../lib/prisma");
+
 module.exports = {
     name: "leaderboard",
     aliases: ["lb", "peringkat"],
@@ -5,16 +7,27 @@ module.exports = {
     code: async (ctx) => {
         try {
             const senderId = ctx.getId(ctx.sender.jid);
-            const users = (await db.toJSON()).user;
 
-            const leaderboardData = Object.entries(users)
-                .map(([id, data]) => ({
-                    id,
-                    username: data.username || "guest",
-                    level: data.level || 0,
-                    winGame: data.winGame || 0
-                }))
-                .sort((a, b) => b.winGame - a.winGame || b.level - a.level);
+            // Ambil semua user dan urutkan berdasarkan winGame dan level
+            const users = await prisma.user.findMany({
+                select: {
+                    phoneNumber: true,
+                    username: true,
+                    level: true,
+                    winGame: true
+                },
+                orderBy: [
+                    { winGame: 'desc' },
+                    { level: 'desc' }
+                ]
+            });
+
+            const leaderboardData = users.map(user => ({
+                id: user.phoneNumber,
+                username: user.username || "guest",
+                level: user.level,
+                winGame: user.winGame
+            }));
 
             const userRank = leaderboardData.findIndex(user => user.id === senderId) + 1;
             const topUsers = leaderboardData.slice(0, 10);

@@ -1,3 +1,5 @@
+const prisma = require("../../lib/prisma");
+
 module.exports = {
     name: "claim",
     aliases: ["bonus", "klaim"],
@@ -18,26 +20,54 @@ module.exports = {
 
         const claim = claimRewards[input];
         const senderId = ctx.getId(ctx.sender.jid);
-        const userDb = await db.get(`user.${senderId}`) || {};
-        const level = userDb?.level || 0;
-
+        
         if (!claim) return await ctx.reply(formatter.quote("❎ Hadiah tidak valid!"));
-        if (tools.cmd.isOwner(senderId, ctx.msg.key.id) || userDb?.premium) return await ctx.reply(formatter.quote("❎ Kamu sudah memiliki koin tak terbatas, tidak perlu mengklaim lagi."));
-        if (level < claim.level) return await ctx.reply(formatter.quote(`❎ Kamu perlu mencapai level ${claim.level} untuk mengklaim hadiah ini. Levelmu saat ini adalah ${level}.`));
+
+        const user = await prisma.user.findUnique({
+            where: { phoneNumber: senderId }
+        });
+
+        if (tools.cmd.isOwner(senderId, ctx.msg.key.id) || user?.premium) {
+            return await ctx.reply(formatter.quote("❎ Kamu sudah memiliki koin tak terbatas, tidak perlu mengklaim lagi."));
+        }
+
+        const level = user?.level || 0;
+        if (level < claim.level) {
+            return await ctx.reply(formatter.quote(`❎ Kamu perlu mencapai level ${claim.level} untuk mengklaim hadiah ini. Levelmu saat ini adalah ${level}.`));
+        }
 
         const currentTime = Date.now();
-
-        const lastClaim = (userDb?.lastClaim ?? {})[input] || 0;
+        const lastClaim = (user?.lastClaim ?? {})[input] || 0;
         const timePassed = currentTime - lastClaim;
         const remainingTime = claim.cooldown - timePassed;
-        if (remainingTime > 0) return await ctx.reply(formatter.quote(`⏳ Kamu telah mengklaim hadiah ${input}. Tunggu ${tools.msg.convertMsToDuration(remainingTime)} untuk mengklaim lagi.`));
+
+        if (remainingTime > 0) {
+            return await ctx.reply(formatter.quote(`⏳ Kamu telah mengklaim hadiah ${input}. Tunggu ${tools.msg.convertMsToDuration(remainingTime)} untuk mengklaim lagi.`));
+        }
 
         try {
-            const rewardCoin = (userDb?.coin || 0) + claim.reward;
-            await db.set(`user.${senderId}.coin`, rewardCoin);
-            await db.set(`user.${senderId}.lastClaim.${input}`, currentTime);
+            const updatedUser = await prisma.user.upsert({
+                where: { phoneNumber: senderId },
+                create: {
+                    phoneNumber: senderId,
+                    coin: claim.reward,
+                    lastClaim: {
+                        [input]: currentTime
+                    },
+                    username: `@user_${senderId.slice(-6)}`
+                },
+                update: {
+                    coin: {
+                        increment: claim.reward
+                    },
+                    lastClaim: {
+                        ...(user?.lastClaim || {}),
+                        [input]: currentTime
+                    }
+                }
+            });
 
-            return await ctx.reply(formatter.quote(`✅ Kamu berhasil mengklaim hadiah ${input} sebesar ${claim.reward} koin! Koin-mu saat ini adalah ${rewardCoin}.`));
+            return await ctx.reply(formatter.quote(`✅ Kamu berhasil mengklaim hadiah ${input} sebesar ${claim.reward} koin! Koin-mu saat ini adalah ${updatedUser.coin}.`));
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);
         }

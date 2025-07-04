@@ -1,4 +1,5 @@
 const axios = require("axios");
+const prisma = require('../../lib/prisma');
 
 module.exports = {
     name: "blackbox",
@@ -23,6 +24,11 @@ module.exports = {
         ]);
 
         try {
+            const senderId = ctx.getId(ctx.sender.jid);
+            const user = await prisma.user.findUnique({
+                where: { phoneNumber: senderId }
+            });
+
             if (checkMedia || checkQuotedMedia) {
                 const buffer = await ctx.msg.media.toBuffer() || await ctx.quoted.media.toBuffer();
                 const uploadUrl = await tools.cmd.upload(buffer, "image");
@@ -36,7 +42,7 @@ module.exports = {
             } else {
                 const apiUrl = tools.api.createUrl("nekorinn", "/ai/blackbox", {
                     text: input,
-                    sessionid: await db.get(`user.${ctx.getId(ctx.sender.jid)}.uid`) || "guest"
+                    sessionid: user?.username || "guest"
                 });
                 const result = (await axios.get(apiUrl)).data.result;
 

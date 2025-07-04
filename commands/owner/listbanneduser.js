@@ -1,3 +1,5 @@
+const prisma = require("../../lib/prisma");
+
 module.exports = {
     name: "listbanneduser",
     aliases: ["listban", "listbanned"],
@@ -7,23 +9,24 @@ module.exports = {
     },
     code: async (ctx) => {
         try {
-            const users = db.get("user");
-            const bannedUsers = [];
-
-            for (const userId in users) {
-                if (users[userId].banned === true) bannedUsers.push(userId);
-            }
+            // Ambil semua user yang dibanned
+            const bannedUsers = await prisma.user.findMany({
+                where: {
+                    banned: true
+                },
+                select: {
+                    phoneNumber: true
+                }
+            });
 
             let resultText = "";
             let userMentions = [];
 
-            bannedUsers.forEach(userId => {
-                resultText += `${formatter.quote(`@${userId}`)}\n`;
-            });
-
-            bannedUsers.forEach(userId => {
-                userMentions.push(`${userId}@s.whatsapp.net`);
-            });
+            for (const user of bannedUsers) {
+                const userJid = `${user.phoneNumber}@s.whatsapp.net`;
+                resultText += `${formatter.quote(`@${user.phoneNumber}`)}\n`;
+                userMentions.push(userJid);
+            }
 
             return await ctx.reply({
                 text: `${resultText.trim() || config.msg.notFound}\n` +

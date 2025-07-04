@@ -1,3 +1,5 @@
+const prisma = require("../../lib/prisma");
+
 module.exports = {
     name: "ounmute",
     category: "owner",
@@ -9,7 +11,17 @@ module.exports = {
         const groupId = ctx.getId(ctx.id);
 
         if (["b", "bot"].includes(ctx.args[0]?.toLowerCase())) {
-            await db.set(`group.${groupId}.mutebot`, true);
+            // Update status mute bot untuk grup
+            await prisma.group.upsert({
+                where: { id: groupId },
+                create: {
+                    id: groupId,
+                    mutebot: true
+                },
+                update: {
+                    mutebot: true
+                }
+            });
             return await ctx.reply(formatter.quote("✅ Berhasil me-unmute grup ini dari bot!"));
         }
 
@@ -27,9 +39,20 @@ module.exports = {
         if (accountJid === await ctx.group().owner()) return await ctx.reply(formatter.quote("❎ Dia adalah owner grup!"));
 
         try {
-            let muteList = await db.get(`group.${groupId}.mute`) || [];
-            muteList = muteList.filter(item => item !== accountId);
-            await db.set(`group.${groupId}.mute`, muteList);
+            // Ambil data grup yang ada
+            const group = await prisma.group.findUnique({
+                where: { id: groupId },
+                select: { mute: true }
+            });
+
+            // Update daftar mute
+            const muteList = (group?.mute || []).filter(item => item !== accountId);
+            await prisma.group.update({
+                where: { id: groupId },
+                data: {
+                    mute: muteList
+                }
+            });
 
             return await ctx.reply(formatter.quote("✅ Berhasil me-unmute pengguna itu dari grup ini!"));
         } catch (error) {

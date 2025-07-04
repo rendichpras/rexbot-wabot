@@ -1,3 +1,5 @@
+const prisma = require("../../lib/prisma");
+
 module.exports = {
     name: "addpremiumuser",
     aliases: ["addpremuser", "addprem", "apu"],
@@ -27,6 +29,23 @@ module.exports = {
 
         try {
             const userId = ctx.getId(userJid);
+            const expirationDate = daysAmount ? Date.now() + (daysAmount * 24 * 60 * 60 * 1000) : null;
+
+            // Update atau buat user baru dengan status premium
+            await prisma.user.upsert({
+                where: {
+                    phoneNumber: userId
+                },
+                create: {
+                    phoneNumber: userId,
+                    premium: true,
+                    premiumExpiration: expirationDate ? BigInt(expirationDate) : null
+                },
+                update: {
+                    premium: true,
+                    premiumExpiration: expirationDate ? BigInt(expirationDate) : null
+                }
+            });
 
             const flag = tools.cmd.parseFlag(ctx.args.join(" "), {
                 "-s": {
@@ -37,25 +56,21 @@ module.exports = {
 
             const silent = flag?.silent || false;
 
-            await db.set(`user.${userId}.premium`, true);
-            if (daysAmount && daysAmount > 0) {
-                const expirationDate = Date.now() + (daysAmount * 24 * 60 * 60 * 1000);
-                await db.set(`user.${userId}.premiumExpiration`, expirationDate);
-
-                if (!silent) await ctx.sendMessage(userJid, {
-                    text: formatter.quote(`📢 Kamu telah ditambahkan sebagai pengguna Premium oleh Owner selama ${daysAmount} hari!`)
+            if (!silent) {
+                const message = daysAmount 
+                    ? `📢 Kamu telah ditambahkan sebagai pengguna Premium oleh Owner selama ${daysAmount} hari!`
+                    : "📢 Kamu telah ditambahkan sebagai pengguna Premium selamanya oleh Owner!";
+                
+                await ctx.sendMessage(userJid, {
+                    text: formatter.quote(message)
                 });
-
-                return await ctx.reply(formatter.quote(`✅ Berhasil menambahkan Premium selama ${daysAmount} hari kepada pengguna itu!`));
-            } else {
-                await db.delete(`user.${userId}.premiumExpiration`);
-
-                if (!silent) await ctx.sendMessage(userJid, {
-                    text: formatter.quote("📢 Kamu telah ditambahkan sebagai pengguna Premium selamanya oleh Owner!")
-                });
-
-                return await ctx.reply(formatter.quote("✅ Berhasil menambahkan Premium selamanya kepada pengguna itu!"));
             }
+
+            const successMessage = daysAmount 
+                ? `✅ Berhasil menambahkan Premium selama ${daysAmount} hari kepada pengguna itu!`
+                : "✅ Berhasil menambahkan Premium selamanya kepada pengguna itu!";
+            
+            return await ctx.reply(formatter.quote(successMessage));
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);
         }

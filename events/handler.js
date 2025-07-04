@@ -4,15 +4,18 @@ const {
     VCardBuilder
 } = require("@itsreimau/gktw");
 const axios = require("axios");
-const fs = require("node:fs");
 const moment = require("moment-timezone");
+const prisma = require('../lib/prisma');
 
 // Fungsi untuk menangani event pengguna bergabung/keluar grup
 async function handleWelcome(bot, m, type, isSimulate = false) {
     const groupJid = m.id;
     const groupId = bot.getId(m.id);
-    const groupDb = await db.get(`group.${groupId}`) || {};
-    const botDb = await db.get("bot") || {};
+    
+    const [groupDb, botDb] = await Promise.all([
+        prisma.group.findUnique({ where: { id: groupId } }),
+        prisma.bot.findUnique({ where: { id: 'bot' } })
+    ]);
 
     if (!isSimulate && groupDb?.mutebot) return;
     if (!isSimulate && !groupDb?.option?.welcome) return;
@@ -68,14 +71,18 @@ async function handleWelcome(bot, m, type, isSimulate = false) {
 // Fungsi untuk menambahkan warning
 async function addWarning(ctx, groupDb, senderJid, groupId) {
     const senderId = ctx.getId(senderJid);
-
-    const warnings = groupDb?.warnings || {};
     const maxwarnings = groupDb?.maxwarnings || 3;
+    const warnings = groupDb?.warnings || {};
     const current = warnings[senderId] || 0;
     const newWarning = current + 1;
+    
     warnings[senderId] = newWarning;
 
-    await db.set(`group.${groupId}.warnings`, warnings);
+    await prisma.group.update({
+        where: { id: groupId },
+        data: { warnings }
+    });
+
     await ctx.reply({
         text: formatter.quote(`⚠️ Warning ${newWarning}/${maxwarnings} untuk @${senderId}!`),
         mentions: [senderJid]
@@ -84,8 +91,11 @@ async function addWarning(ctx, groupDb, senderJid, groupId) {
     if (newWarning >= maxwarnings) {
         await ctx.reply(formatter.quote(`⛔ Kamu telah menerima ${maxwarnings} warning dan akan dikeluarkan dari grup!`));
         if (!config.system.restrict) await ctx.group().kick([senderJid]);
-        delete groupDb.warnings[senderId];
-        await db.set(`group.${groupId}`, groupDb);
+        delete warnings[senderId];
+        await prisma.group.update({
+            where: { id: groupId },
+            data: { warnings }
+        });
     }
 }
 
@@ -98,14 +108,22 @@ module.exports = (bot) => {
         consolefy.success(`${config.bot.name} by ${config.owner.name}, ready at ${m.user.id}`);
 
         // Mulai ulang bot
-        const botRestart = await db.get("bot.restart") || {};
-        if (botRestart?.jid && botRestart?.timestamp) {
-            const timeago = tools.msg.convertMsToDuration(Date.now() - botRestart.timestamp);
-            await bot.core.sendMessage(botRestart.jid, {
+        const botDb = await prisma.bot.findUnique({ 
+            where: { id: 'bot' },
+            select: { restart: true }
+        });
+        
+        if (botDb?.restart?.jid && botDb?.restart?.timestamp) {
+            const timeago = tools.msg.convertMsToDuration(Date.now() - botDb.restart.timestamp);
+            await bot.core.sendMessage(botDb.restart.jid, {
                 text: formatter.quote(`✅ Berhasil dimulai ulang! Membutuhkan waktu ${timeago}.`),
-                edit: botRestart.key
+                edit: botDb.restart.key
             });
-            await db.delete("bot.restart");
+            
+            await prisma.bot.update({
+                where: { id: 'bot' },
+                data: { restart: null }
+            });
         }
 
         // Tetapkan config pada bot
@@ -132,11 +150,13 @@ module.exports = (bot) => {
         const isCmd = tools.cmd.isCmd(m.content, ctx.bot);
 
         // Mengambil database
-        const botDb = await db.get("bot") || {};
-        const userDb = await db.get(`user.${senderId}`) || {};
-        const groupDb = await db.get(`group.${groupId}`) || {};
+        const [botDb, userDb, groupDb] = await Promise.all([
+            prisma.bot.findUnique({ where: { id: 'bot' } }),
+            prisma.user.findUnique({ where: { phoneNumber: senderId } }),
+            isGroup ? prisma.group.findUnique({ where: { id: groupId } }) : null
+        ]);
 
-        // Pengecekan mode bot (group, private, self)
+        // Pengecekan mode bot
         if (groupDb?.mutebot === true && !isOwner && !await ctx.group().isSenderAdmin()) return;
         if (groupDb?.mutebot === "owner" && !isOwner) return;
         if (botDb?.mode === "group" && isPrivate && !isOwner) return;
@@ -156,29 +176,57 @@ module.exports = (bot) => {
         if (isGroup || isPrivate) {
             if (m.key.fromMe) return;
 
-            config.bot.dbSize = fs.existsSync("database.json") ? tools.msg.formatSize(fs.statSync("database.json").size / 1024) : "N/A"; // Penangan pada ukuran database
             config.bot.uptime = tools.msg.convertMsToDuration(Date.now() - config.bot.readyAt); // Penangan pada uptime
 
             // Penanganan database pengguna
-            if (isOwner || userDb?.premium) db.set(`user.${senderId}.coin`, 0);
-            if (userDb?.coin === undefined || !Number.isFinite(userDb.coin)) db.set(`user.${senderId}.coin`, 500);
-            if (!userDb?.uid || userDb?.uid !== tools.cmd.generateUID(senderId)) db.set(`user.${senderId}.uid`, tools.cmd.generateUID(senderId));
-            if (!userDb?.username) db.set(`user.${senderId}.username`, `@user_${tools.cmd.generateUID(senderId, false)}`);
-            if (userDb?.premium && Date.now() > userDb.premiumExpiration) {
-                await db.delete(`user.${senderId}.premium`);
-                await db.delete(`user.${senderId}.premiumExpiration`);
+            if (!userDb) {
+                await prisma.user.create({
+                    data: {
+                        phoneNumber: senderId,
+                        coin: isOwner ? 0 : 500,
+                        username: `@user_${senderId.slice(-6)}`
+                    }
+                });
+            } else {
+                if (isOwner || userDb.premium) {
+                    await prisma.user.update({
+                        where: { phoneNumber: senderId },
+                        data: { coin: 0 }
+                    });
+                }
+                
+                // Update username jika belum ada
+                if (!userDb.username) {
+                    await prisma.user.update({
+                        where: { phoneNumber: senderId },
+                        data: { username: `@user_${senderId.slice(-6)}` }
+                    });
+                }
+                
+                // Cek premium expiration
+                if (userDb.premium && Date.now() > userDb.premiumExpiration) {
+                    await prisma.user.update({
+                        where: { phoneNumber: senderId },
+                        data: {
+                            premium: false,
+                            premiumExpiration: null
+                        }
+                    });
+                }
             }
 
-            if (isCmd?.didyoumean) await ctx.reply(formatter.quote(`❎ Kamu salah ketik, sepertinya ${formatter.monospace(isCmd.prefix + isCmd.didyoumean)}.`)); // Did you mean?
+            if (isCmd?.didyoumean) await ctx.reply(formatter.quote(`❎ Kamu salah ketik, sepertinya ${formatter.monospace(isCmd.prefix + isCmd.didyoumean)}.`));
 
-            // Penanganan AFK (Menghapus status AFK pengguna yang mengirim pesan)
-            const userAfk = userDb?.afk || {};
-            if (userAfk.reason || userAfk.timestamp) {
-                const timeElapsed = Date.now() - userAfk.timestamp;
+            // Penanganan AFK
+            if (userDb?.afk?.reason || userDb?.afk?.timestamp) {
+                const timeElapsed = Date.now() - userDb.afk.timestamp;
                 if (timeElapsed > 3000) {
                     const timeago = tools.msg.convertMsToDuration(timeElapsed);
-                    await ctx.reply(formatter.quote(`📴 Kamu telah keluar dari AFK ${userAfk.reason ? `dengan alasan "${userAfk.reason}"` : "tanpa alasan"} selama ${timeago}.`));
-                    await db.delete(`user.${senderId}.afk`);
+                    await ctx.reply(formatter.quote(`📴 Kamu telah keluar dari AFK ${userDb.afk.reason ? `dengan alasan "${userDb.afk.reason}"` : "tanpa alasan"} selama ${timeago}.`));
+                    await prisma.user.update({
+                        where: { phoneNumber: senderId },
+                        data: { afk: null }
+                    });
                 }
             }
         }
@@ -189,23 +237,31 @@ module.exports = (bot) => {
 
             consolefy.info(`Incoming message from group: ${groupId}, by: ${senderId}`) // Log pesan masuk
 
-            // Variabel umum
-            const groupAutokick = groupDb?.option?.autokick;
-
-            // Penanganan database grup
-            if (groupDb?.sewa && Date.now() > userDb?.sewaExpiration) {
-                await db.delete(`group.${groupId}.sewa`);
-                await db.delete(`group.${groupId}.sewaExpiration`);
+            // Pengecekan sewa grup
+            if (groupDb?.sewa && groupDb.sewaExpiration && Date.now() > Number(groupDb.sewaExpiration)) {
+                await prisma.group.update({
+                    where: { id: groupId },
+                    data: {
+                        sewa: false,
+                        sewaExpiration: null
+                    }
+                });
             }
 
             // Penanganan AFK (Pengguna yang disebutkan atau di-balas/quote)
             const userMentions = ctx?.quoted?.senderJid ? [ctx.getId(ctx?.quoted?.senderJid)] : m.message?.[ctx.getMessageType()]?.contextInfo?.mentionedJid?.map((jid) => ctx.getId(jid)) || [];
             if (userMentions.length > 0) {
-                for (const userMention of userMentions) {
-                    const userMentionAfk = await db.get(`user.${userMention}.afk`) || {};
-                    if (userMentionAfk.reason || userMentionAfk.timestamp) {
-                        const timeago = tools.msg.convertMsToDuration(Date.now() - userMentionAfk.timestamp);
-                        await ctx.reply(formatter.quote(`📴 Jangan tag! Dia sedang AFK ${userMentionAfk.reason ? `dengan alasan "${userMentionAfk.reason}"` : "tanpa alasan"} selama ${timeago}.`));
+                const mentionedUsers = await prisma.user.findMany({
+                    where: {
+                        phoneNumber: { in: userMentions },
+                        afk: { not: null }
+                    }
+                });
+
+                for (const user of mentionedUsers) {
+                    if (user.afk?.reason || user.afk?.timestamp) {
+                        const timeago = tools.msg.convertMsToDuration(Date.now() - user.afk.timestamp);
+                        await ctx.reply(formatter.quote(`📴 Jangan tag! Dia sedang AFK ${user.afk.reason ? `dengan alasan "${user.afk.reason}"` : "tanpa alasan"} selama ${timeago}.`));
                     }
                 }
             }
@@ -217,7 +273,7 @@ module.exports = (bot) => {
                     if (checkMedia) {
                         await ctx.reply(formatter.quote(`⛔ Jangan kirim ${type}!`));
                         await ctx.deleteMessage(m.key);
-                        if (groupAutokick) {
+                        if (groupDb?.option?.autokick) {
                             await ctx.group().kick([senderJid]);
                         } else {
                             await addWarning(ctx, groupDb, senderJid, groupId);
@@ -231,7 +287,7 @@ module.exports = (bot) => {
                 if (m.content && await tools.cmd.isUrl(m.content)) {
                     await ctx.reply(formatter.quote("⛔ Jangan kirim link!"));
                     await ctx.deleteMessage(m.key);
-                    if (groupAutokick) {
+                    if (groupDb?.option?.autokick) {
                         await ctx.group().kick([senderJid]);
                     } else {
                         await addWarning(ctx, groupDb, senderJid, groupId);
@@ -253,7 +309,7 @@ module.exports = (bot) => {
                     if (result.nsfw === "porn") {
                         await ctx.reply(formatter.quote("⛔ Jangan kirim NSFW, dasar cabul!"));
                         await ctx.deleteMessage(m.key);
-                        if (groupAutokick) {
+                        if (groupDb?.option?.autokick) {
                             await ctx.group().kick([senderJid]);
                         } else {
                             await addWarning(ctx, groupDb, senderJid, groupId);
@@ -265,7 +321,7 @@ module.exports = (bot) => {
             // Penanganan antispam
             if (groupDb?.option?.antispam && !isOwner && !await ctx.group().isSenderAdmin() && !isCmd) {
                 const now = Date.now();
-                const spamData = await db.get(`group.${groupId}.spam`) || {};
+                const spamData = groupDb?.spam || {};
                 const data = spamData[senderId] || {
                     count: 0,
                     lastMessageTime: 0
@@ -279,18 +335,24 @@ module.exports = (bot) => {
                     lastMessageTime: now
                 };
 
-                await db.set(`group.${groupId}.spam`, spamData);
+                await prisma.group.update({
+                    where: { id: groupId },
+                    data: { spam: spamData }
+                });
 
                 if (newCount > 5) {
                     await ctx.reply(formatter.quote("⛔ Jangan spam, ngelag woy!"));
                     await ctx.deleteMessage(m.key);
-                    if (groupAutokick) {
+                    if (groupDb?.option?.autokick) {
                         await ctx.group().kick([senderJid]);
                     } else {
                         await addWarning(ctx, groupDb, senderJid, groupId);
                     }
                     delete spamData[senderId];
-                    await db.set(`group.${groupId}.spam`, spamData);
+                    await prisma.group.update({
+                        where: { id: groupId },
+                        data: { spam: spamData }
+                    });
                 }
             }
 
@@ -300,7 +362,7 @@ module.exports = (bot) => {
                 if (checkMedia) {
                     await ctx.reply(formatter.quote(`⛔ Jangan tag grup di SW, gak ada yg peduli!`));
                     await ctx.deleteMessage(m.key);
-                    if (groupAutokick) {
+                    if (groupDb?.option?.autokick) {
                         await ctx.group().kick([senderJid]);
                     } else {
                         await addWarning(ctx, groupDb, senderJid, groupId);
@@ -314,7 +376,7 @@ module.exports = (bot) => {
                 if (m.content && toxicRegex.test(m.content)) {
                     await ctx.reply(formatter.quote("⛔ Jangan toxic!"));
                     await ctx.deleteMessage(m.key);
-                    if (groupAutokick) {
+                    if (groupDb?.option?.autokick) {
                         await ctx.group().kick([senderJid]);
                     } else {
                         await addWarning(ctx, groupDb, senderJid, groupId);
@@ -327,30 +389,38 @@ module.exports = (bot) => {
         if (isPrivate) {
             if (m.key.fromMe) return;
 
-            consolefy.info(`Incoming message from: ${senderId}`); // Log pesan masuk
+            consolefy.info(`Incoming message from: ${senderId}`);
 
             // Penanganan menfess
-            const allMenfessDb = await db.get("menfess") || {};
             if (!isCmd || isCmd?.didyoumean) {
-                for (const [conversationId, {
-                        from,
-                        to
-                    }] of Object.entries(allMenfessDb)) {
-                    if (senderId === from || senderId === to) {
-                        const targetId = `${senderId === from ? to : from}@s.whatsapp.net`;
+                const activeMenfess = await prisma.menfess.findMany({
+                    where: {
+                        OR: [
+                            { fromNumber: senderId },
+                            { toNumber: senderId }
+                        ],
+                        active: true
+                    }
+                });
 
-                        if (m.content?.match(/\b(d|s|delete|stop)\b/i)) {
-                            const replyText = formatter.quote("✅ Sesi menfess telah dihapus!");
-                            await ctx.reply(replyText);
-                            await ctx.sendMessage(targetId, {
-                                text: replyText
-                            });
-                            await db.delete(`menfess.${conversationId}`);
-                        } else {
-                            await ctx.core.sendMessage(targetId, {
-                                forward: m
-                            });
-                        }
+                for (const menfess of activeMenfess) {
+                    const targetNumber = senderId === menfess.fromNumber ? menfess.toNumber : menfess.fromNumber;
+                    const targetId = `${targetNumber}@s.whatsapp.net`;
+
+                    if (m.content?.match(/\b(d|s|delete|stop)\b/i)) {
+                        const replyText = formatter.quote("✅ Sesi menfess telah dihapus!");
+                        await Promise.all([
+                            ctx.reply(replyText),
+                            ctx.sendMessage(targetId, { text: replyText }),
+                            prisma.menfess.update({
+                                where: { id: menfess.id },
+                                data: { active: false }
+                            })
+                        ]);
+                    } else {
+                        await ctx.core.sendMessage(targetId, {
+                            forward: m
+                        });
                     }
                 }
             }

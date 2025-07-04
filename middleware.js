@@ -3,12 +3,18 @@ const {
     Cooldown
 } = require("@itsreimau/gktw");
 const moment = require("moment-timezone");
+const prisma = require('./lib/prisma');
 
 // Fungsi untuk mengecek apakah pengguna memiliki cukup koin sebelum menggunakan perintah tertentu
 async function checkCoin(requiredCoin, userDb, senderId, isOwner) {
     if (isOwner || userDb?.premium) return false;
     if (userDb?.coin < requiredCoin) return true;
-    await db.subtract(`user.${senderId}.coin`, requiredCoin);
+    
+    await prisma.user.update({
+        where: { phoneNumber: senderId },
+        data: { coin: { decrement: requiredCoin } }
+    });
+    
     return false;
 }
 
@@ -25,9 +31,15 @@ module.exports = (bot) => {
         const isOwner = tools.cmd.isOwner(senderId, ctx.msg.key.id);
 
         // Mengambil data bot, pengguna, dan grup dari database
-        const botDb = await db.get("bot") || {};
-        const userDb = await db.get(`user.${senderId}`) || {};
-        const groupDb = await db.get(`group.${groupId}`) || {};
+        const [botDb, userDb, groupDb] = await Promise.all([
+            prisma.bot.findUnique({ where: { id: 'bot' } }),
+            prisma.user.upsert({
+                where: { phoneNumber: senderId },
+                create: { phoneNumber: senderId },
+                update: {}
+            }),
+            isGroup ? prisma.group.findUnique({ where: { id: groupId } }) : null
+        ]);
 
         // Pengecekan mode bot (group, private, self)
         if (groupDb?.mutebot === true && !isOwner && !await ctx.group().isSenderAdmin()) return;
@@ -65,10 +77,18 @@ module.exports = (bot) => {
                 });
             }
 
-            await db.set(`user.${senderId}.xp`, newUserXp);
-            await db.set(`user.${senderId}.level`, newUserLevel);
+            await prisma.user.update({
+                where: { phoneNumber: senderId },
+                data: { 
+                    xp: newUserXp,
+                    level: newUserLevel
+                }
+            });
         } else {
-            await db.set(`user.${senderId}.xp`, newUserXp);
+            await prisma.user.update({
+                where: { phoneNumber: senderId },
+                data: { xp: newUserXp }
+            });
         }
 
         // Simulasi mengetik jika diaktifkan dalam konfigurasi
@@ -136,7 +156,18 @@ module.exports = (bot) => {
                         `${config.msg.readmore}\n` +
                         formatter.quote(tools.msg.generateNotes([`Respon selanjutnya akan berupa reaksi emoji '${reaction}'.`]))
                     );
-                    return await db.set(`user.${senderId}.lastSentMsg.${key}`, now);
+                    
+                    await prisma.user.update({
+                        where: { phoneNumber: senderId },
+                        data: {
+                            lastSentMsg: {
+                                ...(userDb?.lastSentMsg || {}),
+                                [key]: now
+                            }
+                        }
+                    });
+                    
+                    return;
                 } else {
                     return await ctx.react(ctx.id, reaction);
                 }
@@ -217,7 +248,26 @@ module.exports = (bot) => {
                         `${config.msg.readmore}\n` +
                         formatter.quote(tools.msg.generateNotes([`Respon selanjutnya akan berupa reaksi emoji '${reaction}'.`]))
                     );
-                    return await db.set(`user.${senderId}.lastSentMsg.${key}`, now);
+
+                    // Update lastSentMsg menggunakan Prisma
+                    await prisma.user.upsert({
+                        where: {
+                            phoneNumber: senderId
+                        },
+                        create: {
+                            phoneNumber: senderId,
+                            lastSentMsg: {
+                                [key]: now
+                            }
+                        },
+                        update: {
+                            lastSentMsg: {
+                                ...(userDb?.lastSentMsg || {}),
+                                [key]: now
+                            }
+                        }
+                    });
+                    return;
                 } else {
                     return await ctx.react(ctx.id, reaction);
                 }

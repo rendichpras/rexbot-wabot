@@ -9,26 +9,20 @@ const {
     Consolefy
 } = require("@mengkodingan/consolefy");
 const CFonts = require("cfonts");
-const fs = require("node:fs");
 const http = require("node:http");
-const path = require("node:path");
-const SimplDB = require("simpl.db");
+const prisma = require('./lib/prisma');
 
 // Inisialisasi Consolefy untuk logging
 const c = new Consolefy({
     tag: pkg.name
 });
 
-// Inisialisasi SimplDB untuk Database
-const dbFile = path.join(__dirname, "database.json");
-if (!fs.existsSync(dbFile)) fs.writeFileSync(dbFile, "{}", "utf8");
-
 // Tetapkan variabel global
 config.bot.version = `v${pkg.version}`;
 Object.assign(global, {
     config,
     consolefy: c,
-    db: new SimplDB(),
+    prisma,
     formatter: Formatter,
     tools
 });
