@@ -1,4 +1,4 @@
-const mime = require("mime-types");
+
 
 module.exports = {
     name: "sanaimg",
@@ -25,7 +25,7 @@ module.exports = {
                 image: {
                     url: result
                 },
-                mimetype: mime.lookup("png"),
+                mimetype: tools.mime.lookup("png"),
                 caption: `${formatter.quote(`Prompt: ${input}`)}\n` +
                     "\n" +
                     config.msg.footer

@@ -55,8 +55,8 @@ module.exports = {
                 `${formatter.quote(`Soal: ${question}`)}\n` +
                 `${formatter.quote(`Bonus: ${game.coin} Koin`)}\n` +
                 `${formatter.quote(`Batas waktu: ${tools.msg.convertMsToDuration(game.timeout)}`)}\n` +
-                `${formatter.quote(`Ketik ${formatter.monospace("hint")} untuk bantuan.`)}\n` +
-                `${formatter.quote(`Ketik ${formatter.monospace("surrender")} untuk menyerah.`)}\n` +
+                `${formatter.quote(`Ketik ${formatter.monospace("h")} untuk bantuan.`)}\n` +
+                `${formatter.quote(`Ketik ${formatter.monospace("s")} untuk menyerah.`)}\n` +
                 "\n" +
                 config.msg.footer
             );
@@ -98,13 +98,13 @@ module.exports = {
                         quoted: m
                     });
                     return collector.stop();
-                } else if (["h", "hint"].includes(participantAnswer)) {
+                } else if (["h"].includes(participantAnswer)) {
                     await ctx.sendMessage(ctx.id, {
                         text: formatter.monospace(clue)
                     }, {
                         quoted: m
                     });
-                } else if (["s", "surrender"].includes(participantAnswer)) {
+                } else if (["s"].includes(participantAnswer)) {
                     session.delete(ctx.id);
                     await ctx.sendMessage(ctx.id, {
                         text: `${formatter.quote("🏳️ Kamu menyerah!")}\n` +

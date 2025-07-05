@@ -29,7 +29,7 @@ module.exports = {
                     await ctx.reply(formatter.quote("✅ Data-mu berhasil direset, semua data telah dihapus!"));
                     return collector.stop();
                 } else if (content === "n") {
-                    await ctx.reply(formatter.quote("❌ Proses reset data telah dibatalkan."));
+                    await ctx.reply(formatter.quote("❎ Proses reset data telah dibatalkan."));
                     return collector.stop();
                 }
             });
@@ -37,7 +37,7 @@ module.exports = {
             collector.on("end", async () => {
                 if (session.has(ctx.id)) {
                     session.delete(ctx.id);
-                    return await ctx.reply(formatter.quote("❌ Waktu konfirmasi telah habis."));
+                    return await ctx.reply(formatter.quote("❎ Waktu konfirmasi telah habis."));
                 }
             });
         } catch (error) {

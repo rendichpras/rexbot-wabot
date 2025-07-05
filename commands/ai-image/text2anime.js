@@ -1,4 +1,4 @@
-const mime = require("mime-types");
+
 
 module.exports = {
     name: "text2anime",
@@ -26,7 +26,7 @@ module.exports = {
                 image: {
                     url: result
                 },
-                mimetype: mime.lookup("jpg"),
+                mimetype: tools.mime.lookup("jpg"),
                 caption: `${formatter.quote(`Prompt: ${input}`)}\n` +
                     "\n" +
                     config.msg.footer

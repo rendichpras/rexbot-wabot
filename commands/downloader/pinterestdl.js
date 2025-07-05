@@ -1,5 +1,5 @@
 const axios = require("axios");
-const mime = require("mime-types");
+
 
 module.exports = {
     name: "pinterestdl",
@@ -34,7 +34,7 @@ module.exports = {
                     [mediaType]: {
                         url: media.url
                     },
-                    mimetype: mime.lookup(extension)
+                    mimetype: tools.mime.lookup(extension)
                 });
             }
         } catch (error) {

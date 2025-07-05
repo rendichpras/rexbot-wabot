@@ -1,5 +1,5 @@
 const axios = require("axios");
-const mime = require("mime-types");
+
 
 module.exports = {
     name: "play",
@@ -63,7 +63,7 @@ module.exports = {
                     audio: {
                         url: downloadResult.audioBase || downloadResult.download
                     },
-                    mimetype: mime.lookup("mp3")
+                    mimetype: tools.mime.lookup("mp3")
                 });
             }
 
@@ -90,7 +90,7 @@ module.exports = {
                     audio: {
                         url: downloadResult
                     },
-                    mimetype: mime.lookup("mp3")
+                    mimetype: tools.mime.lookup("mp3")
                 });
             }
 
@@ -119,7 +119,7 @@ module.exports = {
                     audio: {
                         url: downloadResult
                     },
-                    mimetype: mime.lookup("mp3")
+                    mimetype: tools.mime.lookup("mp3")
                 });
             }
         } catch (error) {

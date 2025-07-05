@@ -1,5 +1,5 @@
 const axios = require("axios");
-const mime = require("mime-types");
+
 
 module.exports = {
     name: "toghibli",
@@ -29,7 +29,7 @@ module.exports = {
                 image: {
                     url: result
                 },
-                mimetype: mime.lookup("jpeg")
+                mimetype: tools.mime.lookup("jpeg")
             });
         } catch (error) {
             return await tools.cmd.handleError(ctx, error, true);

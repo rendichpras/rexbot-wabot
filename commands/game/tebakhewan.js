@@ -1,6 +1,6 @@
 const axios = require("axios");
 const didYouMean = require("didyoumean");
-const mime = require("mime-types");
+
 
 const session = new Map();
 
@@ -26,11 +26,11 @@ module.exports = {
                 image: {
                     url: result.img
                 },
-                mimetype: mime.lookup("jpeg"),
+                mimetype: tools.mime.lookup("jpeg"),
                 caption: `${formatter.quote(`Bonus: ${game.coin} Koin`)}\n` +
                     `${formatter.quote(`Batas waktu: ${tools.msg.convertMsToDuration(game.timeout)}`)}\n` +
-                    `${formatter.quote(`Ketik ${formatter.monospace("hint")} untuk bantuan.`)}\n` +
-                    `${formatter.quote(`Ketik ${formatter.monospace("surrender")} untuk menyerah.`)}\n` +
+                    `${formatter.quote(`Ketik ${formatter.monospace("h")} untuk bantuan.`)}\n` +
+                    `${formatter.quote(`Ketik ${formatter.monospace("s")} untuk menyerah.`)}\n` +
                     "\n" +
                     config.msg.footer
             });
@@ -71,14 +71,14 @@ module.exports = {
                         quoted: m
                     });
                     return collector.stop();
-                } else if (["h", "hint"].includes(participantAnswer)) {
+                } else if (["h"].includes(participantAnswer)) {
                     const clue = game.answer.replace(/[aiueo]/g, "_");
                     await ctx.sendMessage(ctx.id, {
                         text: formatter.monospace(clue.toUpperCase())
                     }, {
                         quoted: m
                     });
-                } else if (["s", "surrender"].includes(participantAnswer)) {
+                } else if (["s"].includes(participantAnswer)) {
                     session.delete(ctx.id);
                     await ctx.sendMessage(ctx.id, {
                         text: `${formatter.quote("🏳️ Kamu menyerah!")}\n` +

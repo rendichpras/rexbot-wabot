@@ -1,5 +1,5 @@
 const axios = require("axios");
-const mime = require("mime-types");
+
 
 module.exports = {
     name: "artinama",

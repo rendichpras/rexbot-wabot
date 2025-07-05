@@ -46,28 +46,28 @@ global.config = {
 
     // Pesan bot yang disesuaikan untuk situasi tertentu
     msg: {
-        admin: Formatter.quote("⛔ Perintah hanya dapat diakses oleh admin grup!"), // Pesan saat perintah hanya untuk admin
-        banned: Formatter.quote("⛔ Tidak dapat memproses karena kamu telah dibanned oleh Owner!"), // Pesan untuk pengguna yang dibanned
-        botAdmin: Formatter.quote("⛔ Tidak dapat memproses karena bot bukan admin grup ini!"), // Pesan jika bot bukan admin di grup
-        botGroupMembership: Formatter.quote(`⛔ Tidak dapat memproses karena kamu tidak bergabung dengan grup bot! Ketik ${Formatter.monospace("/botgroup")} untuk mendapatkan link grup bot.`), // Pesan jika pengguna tidak bergabung dengan grup bot
-        coin: Formatter.quote("⛔ Tidak dapat memproses karena koin-mu tidak cukup!"), // Pesan saat koin tidak cukup
-        cooldown: Formatter.quote("🔄 Perintah ini sedang dalam cooldown, tunggu..."), // Pesan saat cooldown perintah
-        gamerestrict: Formatter.quote("⛔ Tidak dapat memproses karena grup ini membatasi game!"),
-        group: Formatter.quote("⛔ Perintah hanya dapat diakses dalam grup!"), // Pesan untuk perintah grup
-        groupSewa: Formatter.quote(`⛔ Bot tidak aktif karena grup ini belum melakukan sewa. Ketik ${Formatter.monospace("/price")} untuk melihat harga sewa atau ${Formatter.monospace("/owner")} untuk menghubungi Owner bot.`), // Pesan jika grup belum melakukan sewa
-        owner: Formatter.quote("⛔ Perintah hanya dapat diakses Owner!"), // Pesan untuk perintah yang hanya owner bisa akses
-        premium: Formatter.quote("⛔ Tidak dapat memproses karena kamu bukan pengguna Premium!"), // Pesan jika pengguna bukan Premium
-        private: Formatter.quote("⛔ Perintah hanya dapat diakses dalam obrolan pribadi!"), // Pesan untuk perintah obrolan pribadi
-        restrict: Formatter.quote("⛔ Perintah ini telah dibatasi karena alasan keamanan!"), // Pesan pembatasan perintah
-        unavailableAtNight: Formatter.quote("⛔ Bot tidak tersedia dari jam 12 malam sampai 6 pagi. Silakan kembali nanti!"), // Pesan jika tidak tersedia pada malam hari
+        admin: Formatter.quote("🔒 Mohon maaf, fitur ini hanya dapat diakses oleh administrator grup."), // Pesan saat perintah hanya untuk admin
+        banned: Formatter.quote("🚫 Mohon maaf, akses Anda telah dibatasi oleh Administrator sistem."), // Pesan untuk pengguna yang dibanned
+        botAdmin: Formatter.quote("⚠️ Mohon maaf, bot memerlukan status administrator grup untuk menjalankan fitur ini."), // Pesan jika bot bukan admin di grup
+        botGroupMembership: Formatter.quote(`📝 Untuk mengakses fitur ini, Anda perlu bergabung dengan grup bot terlebih dahulu. Silakan ketik ${Formatter.monospace("/botgroup")} untuk mendapatkan tautan grup.`), // Pesan jika pengguna tidak bergabung dengan grup bot
+        coin: Formatter.quote("💰 Mohon maaf, saldo koin Anda tidak mencukupi untuk menggunakan fitur ini."), // Pesan saat koin tidak cukup
+        cooldown: Formatter.quote("⏳ Mohon tunggu beberapa saat sebelum menggunakan fitur ini kembali."), // Pesan saat cooldown perintah
+        gamerestrict: Formatter.quote("ℹ️ Mohon maaf, fitur permainan tidak tersedia dalam grup ini."),
+        group: Formatter.quote("📢 Mohon maaf, fitur ini hanya dapat diakses dalam grup."), // Pesan untuk perintah grup
+        groupSewa: Formatter.quote(`💫 Bot belum diaktifkan dalam grup ini. Silakan ketik ${Formatter.monospace("/price")} untuk informasi biaya aktivasi atau ${Formatter.monospace("/owner")} untuk menghubungi Administrator.`), // Pesan jika grup belum melakukan sewa
+        owner: Formatter.quote("🔐 Mohon maaf, fitur ini hanya dapat diakses oleh Administrator sistem."), // Pesan untuk perintah yang hanya owner bisa akses
+        premium: Formatter.quote("✨ Mohon maaf, fitur ini hanya tersedia untuk pengguna Premium."), // Pesan jika pengguna bukan Premium
+        private: Formatter.quote("📨 Mohon maaf, fitur ini hanya dapat diakses melalui pesan pribadi."), // Pesan untuk perintah obrolan pribadi
+        restrict: Formatter.quote("🛡️ Mohon maaf, fitur ini dibatasi untuk alasan keamanan sistem."), // Pesan pembatasan perintah
+        unavailableAtNight: Formatter.quote("🌙 Sistem sedang dalam periode maintenance (00:00 - 06:00 WIB). Silakan coba kembali pada jam operasional."), // Pesan jika tidak tersedia pada malam hari
 
         readmore: "\u200E".repeat(4001), // String read more
-        note: "“Lorem ipsum dolor sit amet, tenebris in umbra, vitae ad mortem.”", // Catatan
-        footer: Formatter.italic("Developed by Rendiichtiar with ❤"),
+        note: "Memberikan pelayanan terbaik dengan integritas dan profesionalisme.", // Catatan
+        footer: Formatter.italic("Dikembangkan oleh Rendiichtiar dengan dedikasi"),
 
-        wait: Formatter.quote("🔄 Tunggu sebentar..."), // Pesan loading
-        notFound: Formatter.quote("❎ Tidak ada yang ditemukan! Coba lagi nanti."), // Pesan item tidak ditemukan
-        urlInvalid: Formatter.quote("❎ URL tidak valid!") // Pesan jika URL tidak valid
+        wait: Formatter.quote("⌛ Sedang memproses permintaan Anda..."), // Pesan loading
+        notFound: Formatter.quote("📭 Mohon maaf, data yang Anda cari tidak ditemukan. Silakan coba kembali."), // Pesan item tidak ditemukan
+        urlInvalid: Formatter.quote("🔗 Mohon maaf, URL yang Anda masukkan tidak valid.") // Pesan jika URL tidak valid
     },
 
     // Informasi owner bot

@@ -1,5 +1,5 @@
 const axios = require("axios");
-const mime = require("mime-types");
+
 
 module.exports = {
     name: "soundclouddl",
@@ -29,7 +29,7 @@ module.exports = {
                 audio: {
                     url: result.audioBase || result.download
                 },
-                mimetype: mime.lookup("mp3")
+                mimetype: tools.mime.lookup("mp3")
             });
         } catch (error) {
             return await tools.cmd.handleError(ctx, error, true);

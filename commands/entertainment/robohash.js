@@ -1,4 +1,4 @@
-const mime = require("mime-types");
+
 
 module.exports = {
     name: "robohash",
@@ -23,7 +23,7 @@ module.exports = {
                 image: {
                     url: result
                 },
-                mimetype: mime.lookup("jpg")
+                mimetype: tools.mime.lookup("jpg")
             });
         } catch (error) {
             return await tools.cmd.handleError(ctx, error, true);

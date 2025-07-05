@@ -1,5 +1,5 @@
 const axios = require("axios");
-const mime = require("mime-types");
+
 
 module.exports = {
     name: "remini",
@@ -28,7 +28,7 @@ module.exports = {
                 image: {
                     url: apiUrl
                 },
-                mimetype: mime.lookup("jpg")
+                mimetype: tools.mime.lookup("jpg")
             });
         } catch (error) {
             return await tools.cmd.handleError(ctx, error, true);

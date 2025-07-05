@@ -44,8 +44,8 @@ module.exports = (bot) => {
         // Pengecekan mode bot (group, private, self)
         if (groupDb?.mutebot === true && !isOwner && !await ctx.group().isSenderAdmin()) return;
         if (groupDb?.mutebot === "owner" && !isOwner) return;
-        if (botDb?.mode === "group" && isPrivate) return;
-        if (botDb?.mode === "private" && isGroup) return;
+        if (botDb?.mode === "group" && isPrivate && !isOwner) return;
+        if (botDb?.mode === "private" && isGroup && !isOwner) return;
         if (botDb?.mode === "self" && !isOwner) return;
 
         // Pengecekan mute pada grup
