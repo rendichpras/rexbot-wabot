@@ -13,8 +13,8 @@ module.exports = {
 
         if (!input) return await ctx.reply(
             `${formatter.quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-            `${formatter.quote(tools.msg.generateCmdExample(ctx.used, "apa itu bot whatsapp?"))}\n` +
-            formatter.quote(tools.msg.generateNotes(["AI ini dapat melihat gambar dan menjawab pertanyaan tentang gambar tersebut.", "Balas atau quote pesan untuk menjadikan teks sebagai input target, jika teks memerlukan baris baru."]))
+            `${formatter.quote(tools.msg.generateCmdExample(ctx.used, "Bagaimana cara kerja bot WhatsApp?"))}\n` +
+            formatter.quote(tools.msg.generateNotes(["Sistem AI ini memiliki kemampuan untuk menganalisis gambar dan memberikan respons berdasarkan konteks visual.", "Untuk input multi-baris, Anda dapat membalas atau mengutip pesan yang diinginkan."]))
         );
 
         const messageType = ctx.getMessageType();

@@ -15,8 +15,8 @@ module.exports = {
             `${formatter.quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
             `${formatter.quote(tools.msg.generateCmdExample(ctx.used, "https://www.youtube.com/watch?v=0Uhh62MUEic -d -q 320"))}\n` +
             formatter.quote(tools.msg.generatesFlagInfo({
-                "-d": "Kirim sebagai dokumen",
-                "-q <number>": "Pilihan pada kualitas audio (tersedia: 64, 96, 128, 192, 256, 320 | default: 320)"
+                "-d": "Mengirimkan file dalam format dokumen",
+                "-q <number>": "Mengatur kualitas audio dalam satuan kbps (Opsi tersedia: 64, 96, 128, 192, 256, 320 | Nilai default: 320)"
             }))
         );
 

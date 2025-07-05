@@ -10,7 +10,7 @@ module.exports = {
         if (!input) return await ctx.reply(
             `${formatter.quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
             `${formatter.quote(tools.msg.generateCmdExample(ctx.used, "daily"))}\n` +
-            formatter.quote(tools.msg.generateNotes([`Ketik ${formatter.monospace(`${ctx.used.prefix + ctx.used.command} list`)} untuk melihat daftar.`]))
+            formatter.quote(tools.msg.generateNotes([`Silakan ketik ${formatter.monospace(`${ctx.used.prefix + ctx.used.command} list`)} untuk menampilkan daftar lengkap.`]))
         );
 
         if (["l", "list"].includes(input.toLowerCase())) {
@@ -28,12 +28,12 @@ module.exports = {
         });
 
         if (tools.cmd.isOwner(senderId, ctx.msg.key.id) || user?.premium) {
-            return await ctx.reply(formatter.quote("❎ Kamu sudah memiliki koin tak terbatas, tidak perlu mengklaim lagi."));
+            return await ctx.reply(formatter.quote("❎ Anda sudah memiliki koin tak terbatas, tidak perlu mengklaim lagi."));
         }
 
         const level = user?.level || 0;
         if (level < claim.level) {
-            return await ctx.reply(formatter.quote(`❎ Kamu perlu mencapai level ${claim.level} untuk mengklaim hadiah ini. Levelmu saat ini adalah ${level}.`));
+            return await ctx.reply(formatter.quote(`❎ Anda perlu mencapai level ${claim.level} untuk mengklaim hadiah ini. Levelmu saat ini adalah ${level}.`));
         }
 
         const currentTime = Date.now();
@@ -42,7 +42,7 @@ module.exports = {
         const remainingTime = claim.cooldown - timePassed;
 
         if (remainingTime > 0) {
-            return await ctx.reply(formatter.quote(`⏳ Kamu telah mengklaim hadiah ${input}. Tunggu ${tools.msg.convertMsToDuration(remainingTime)} untuk mengklaim lagi.`));
+            return await ctx.reply(formatter.quote(`⏳ Anda telah mengklaim hadiah ${input}. Tunggu ${tools.msg.convertMsToDuration(remainingTime)} untuk mengklaim lagi.`));
         }
 
         try {
@@ -67,7 +67,7 @@ module.exports = {
                 }
             });
 
-            return await ctx.reply(formatter.quote(`✅ Kamu berhasil mengklaim hadiah ${input} sebesar ${claim.reward} koin! Koin-mu saat ini adalah ${updatedUser.coin}.`));
+            return await ctx.reply(formatter.quote(`✅ Anda berhasil mengklaim hadiah ${input} sebesar ${claim.reward} koin! Koin-mu saat ini adalah ${updatedUser.coin}.`));
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);
         }

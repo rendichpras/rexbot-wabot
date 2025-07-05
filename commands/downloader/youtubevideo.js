@@ -15,8 +15,8 @@ module.exports = {
             `${formatter.quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
             `${formatter.quote(tools.msg.generateCmdExample(ctx.used, "https://www.youtube.com/watch?v=0Uhh62MUEic -d -q 720"))}\n` +
             formatter.quote(tools.msg.generatesFlagInfo({
-                "-d": "Kirim sebagai dokumen",
-                "-q <number>": "Pilihan pada kualitas video (tersedia: 360, 480, 720, 1080 | default: 720)"
+                "-d": "Mengirimkan file dalam format dokumen",
+                "-q <number>": "Mengatur kualitas video dalam satuan pixel (Opsi tersedia: 360, 480, 720, 1080 | Nilai default: 720)"
             }))
         );
 

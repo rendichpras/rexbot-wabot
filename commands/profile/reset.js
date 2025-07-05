@@ -7,7 +7,7 @@ module.exports = {
         private: true
     },
     code: async (ctx) => {
-        await ctx.reply(formatter.quote(`🤖 Apakah kamu yakin ingin mereset datamu? Langkah ini akan menghapus seluruh data yang tersimpan dan tidak dapat dikembalikan. Ketik ${formatter.monospace("y")} untuk melanjutkan atau ${formatter.monospace("n")} untuk membatalkan.`));
+        await ctx.reply(formatter.quote(`🤖 Apakah Anda yakin ingin mereset datamu? Langkah ini akan menghapus seluruh data yang tersimpan dan tidak dapat dikembalikan. Ketik ${formatter.monospace("y")} untuk melanjutkan atau ${formatter.monospace("n")} untuk membatalkan.`));
 
         try {
             const collector = ctx.MessageCollector({

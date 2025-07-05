@@ -12,7 +12,7 @@ module.exports = {
 
         if (!input) return await ctx.reply(
             `${formatter.quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-            formatter.quote(tools.msg.generateCmdExample(ctx.used, "one last kiss - hikaru utada"))
+            formatter.quote(tools.msg.generateCmdExample(ctx.used, "nina - hindia"))
         );
 
         try {

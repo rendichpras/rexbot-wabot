@@ -32,7 +32,7 @@ module.exports = {
                 }
             });
 
-            return await ctx.reply(formatter.quote(`✅ Berhasil mengubah max warnings menjadi ${input}!`));
+            return await ctx.reply(formatter.quote(`✅ Berhasil mengatur max warnings menjadi ${input}!`));
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);
         }

@@ -11,7 +11,7 @@ module.exports = {
         group: true
     },
     code: async (ctx) => {
-        if (session.has(ctx.id)) return await ctx.reply(formatter.quote("🎮 Sesi permainan sedang berjalan!"));
+        if (session.has(ctx.id)) return await ctx.reply(formatter.quote("🎮 Mohon selesaikan permainan yang sedang berlangsung terlebih dahulu"));
 
         try {
             const apiUrl = tools.api.createUrl("https://raw.githubusercontent.com", "/BochilTeam/database/refs/heads/master/games/family100.json");
@@ -30,10 +30,10 @@ module.exports = {
             session.set(ctx.id, true);
 
             await ctx.reply(
-                `${formatter.quote(`Soal: ${result.soal}`)}\n` +
-                `${formatter.quote(`Jumlah jawaban: ${game.answers.size}`)}\n` +
-                `${formatter.quote(`Batas waktu: ${tools.msg.convertMsToDuration(game.timeout)}`)}\n` +
-                `${formatter.quote(`Ketik ${formatter.monospace("s")} untuk menyerah.`)}\n` +
+                `${formatter.quote(`📝 Pertanyaan: ${result.soal}`)}\n` +
+                `${formatter.quote(`📊 Total Jawaban: ${game.answers.size}`)}\n` +
+                `${formatter.quote(`⏳ Waktu: ${tools.msg.convertMsToDuration(game.timeout)}`)}\n` +
+                `${formatter.quote(`❌ Ketik ${formatter.monospace("s")} untuk mengakhiri permainan`)}\n` +
                 "\n" +
                 config.msg.footer
             );
@@ -63,7 +63,7 @@ module.exports = {
                     });
 
                     await ctx.sendMessage(ctx.id, {
-                        text: formatter.quote(`✅ ${tools.msg.ucwords(participantAnswer)} benar! Jawaban tersisa: ${game.answers.size}`)
+                        text: formatter.quote(`✨ Jawaban "${tools.msg.ucwords(participantAnswer)}" benar! Sisa jawaban: ${game.answers.size}`)
                     }, {
                         quoted: m
                     });
@@ -86,7 +86,7 @@ module.exports = {
                             });
                         }
                         await ctx.sendMessage(ctx.id, {
-                            text: formatter.quote(`🎉 Selamat! Semua jawaban telah terjawab! Setiap anggota yang menjawab mendapat ${game.coin.allAnswered} koin.`)
+                            text: formatter.quote(`🎉 Selamat! Semua jawaban telah ditemukan! Setiap peserta yang berpartisipasi mendapatkan ${game.coin.allAnswered} Koin.`)
                         }, {
                             quoted: m
                         });
@@ -96,15 +96,15 @@ module.exports = {
                     const remaining = [...game.answers].map(tools.msg.ucwords).join(", ").replace(/, ([^,]*)$/, ", dan $1");
                     session.delete(ctx.id);
                     await ctx.sendMessage(ctx.id, {
-                        text: `${formatter.quote("🏳️ Kamu menyerah!")}\n` +
-                            formatter.quote(`Jawaban yang belum terjawab adalah ${remaining}.`)
+                        text: `${formatter.quote("🏳️ Permainan diakhiri")}\n` +
+                            formatter.quote(`Jawaban yang belum ditemukan: ${remaining}`)
                     }, {
                         quoted: m
                     });
                     return collector.stop();
                 } else if (didYouMean(participantAnswer, [game.answer]) === game.answer) {
                     await ctx.sendMessage(ctx.id, {
-                        text: formatter.quote("🎯 Sedikit lagi!")
+                        text: formatter.quote("🎯 Jawaban Anda sudah mendekati benar!")
                     }, {
                         quoted: m
                     });
@@ -117,8 +117,8 @@ module.exports = {
                 if (session.has(ctx.id)) {
                     session.delete(ctx.id);
                     return await ctx.reply(
-                        `${formatter.quote("⏱ Waktu habis!")}\n` +
-                        formatter.quote(`Jawaban yang belum terjawab adalah ${remaining}`)
+                        `${formatter.quote("⏱️ Waktu permainan telah habis")}\n` +
+                        formatter.quote(`Jawaban yang belum ditemukan: ${remaining}`)
                     );
                 }
             });

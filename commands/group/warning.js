@@ -19,12 +19,12 @@ module.exports = {
         if (!accountJid) return await ctx.reply({
             text: `${formatter.quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
                 `${formatter.quote(tools.msg.generateCmdExample(ctx.used, `@${senderId}`))}\n` +
-                formatter.quote(tools.msg.generateNotes(["Balas atau kutip pesan untuk menjadikan pengirim sebagai akun target."])),
+                formatter.quote(tools.msg.generateNotes(["Silakan balas atau kutip pesan untuk menentukan pengguna yang akan dijadikan target."])),
             mentions: [senderJid]
         });
 
-        if (accountId === config.bot.id) return await ctx.reply(formatter.quote(`❎ Tidak bisa memberikan warning ke bot.`));
-        if (accountJid === await ctx.group().owner()) return await ctx.reply(formatter.quote("❎ Tidak bisa memberikan warning ke admin grup!"));
+        if (accountId === config.bot.id) return await ctx.reply(formatter.quote(`❎ Tidak dapat memberikan warning ke bot.`));
+        if (accountJid === await ctx.group().owner()) return await ctx.reply(formatter.quote("❎ Tidak dapat memberikan warning ke admin grup!"));
 
         try {
             const groupId = ctx.getId(ctx.id);
@@ -49,7 +49,7 @@ module.exports = {
             const maxwarnings = group.maxwarnings || 3;
 
             if (newWarning >= maxwarnings) {
-                await ctx.reply(formatter.quote(`⛔ Kamu telah menerima ${maxwarnings} warning dan akan dikeluarkan dari grup!`));
+                await ctx.reply(formatter.quote(`⛔ Anda telah menerima ${maxwarnings} warning dan akan dikeluarkan dari grup!`));
                 if (!config.system.restrict) await ctx.group().kick([accountJid]);
                 
                 delete warnings[accountId];
@@ -67,7 +67,7 @@ module.exports = {
                 data: { warnings }
             });
 
-            return await ctx.reply(formatter.quote(`✅ Warning diberikan! Sekarang warning @${accountId} menjadi ${newWarning}/${maxwarnings}.`), {
+            return await ctx.reply(formatter.quote(`✅ Warning berhasil diberikan! Sekarang warning @${accountId} menjadi ${newWarning}/${maxwarnings}.`), {
                 mentions: [accountJid]
             });
         } catch (error) {

@@ -18,12 +18,12 @@ module.exports = {
         const accountJid = `${input.replace(/[^\d]/g, "")}@s.whatsapp.net`;
 
         const isOnWhatsApp = await ctx.core.onWhatsApp(accountJid);
-        if (isOnWhatsApp.length === 0) return await ctx.reply(formatter.quote("❎ Akun tidak ada di WhatsApp!"));
+        if (isOnWhatsApp.length === 0) return await ctx.reply(formatter.quote("❎ Nomor tidak terdaftar di WhatsApp!"));
 
         try {
             await ctx.group().add([accountJid]);
 
-            return await ctx.reply(formatter.quote("✅ Berhasil ditambahkan!"));
+            return await ctx.reply(formatter.quote("✅ Berhasil menambahkan nomor tersebut ke grup!"));
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);
         }

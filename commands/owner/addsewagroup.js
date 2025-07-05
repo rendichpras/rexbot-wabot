@@ -16,7 +16,7 @@ module.exports = {
             `${formatter.quote(tools.msg.generateCmdExample(ctx.used, "1234567890 30"))}\n` +
             `${formatter.quote(tools.msg.generateNotes(["Gunakan di grup untuk otomatis menyewakan grup tersebut."]))}\n` +
             formatter.quote(tools.msg.generatesFlagInfo({
-                "-s": "Tetap diam dengan tidak menyiarkan ke orang yang relevan"
+                "-s": "Tidak mengirimkan notifikasi kepada pengguna yang bersangkutan"
             }))
         );
 

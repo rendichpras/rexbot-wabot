@@ -15,7 +15,7 @@ module.exports = {
         if (!input) return await ctx.reply(
             `${formatter.quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
             `${formatter.quote(tools.msg.generateCmdExample(ctx.used, "antilink"))}\n` +
-            formatter.quote(tools.msg.generateNotes([`Ketik ${formatter.monospace(`${ctx.used.prefix + ctx.used.command} list`)} untuk melihat daftar.`, `Ketik ${formatter.monospace(`${ctx.used.prefix + ctx.used.command} status`)} untuk melihat status.`]))
+            formatter.quote(tools.msg.generateNotes([`Silakan ketik ${formatter.monospace(`${ctx.used.prefix + ctx.used.command} list`)} untuk menampilkan daftar lengkap.`, `Ketik ${formatter.monospace(`${ctx.used.prefix + ctx.used.command} status`)} untuk melihat status.`]))
         );
 
         if (["l", "list"].includes(input.toLowerCase())) {

@@ -12,8 +12,8 @@ module.exports = {
         const url = ctx.args[0] || null;
 
         if (!url) return await ctx.reply(
-            `${formatter.quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-            formatter.quote(tools.msg.generateCmdExample(ctx.used, "https://v.douyin.com/d2OVRjYYi9s"))
+            `${formatter.quote(tools.msg.generateInstruction(["kirim"], ["teks"]))}\n` +
+            formatter.quote(tools.msg.generateCmdExample(ctx.used, "https://v.douyin.com/kbcUWN3G9qk"))
         );
 
         const isUrl = await tools.cmd.isUrl(url);

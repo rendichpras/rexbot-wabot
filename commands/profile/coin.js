@@ -15,11 +15,11 @@ module.exports = {
             });
 
             if (tools.cmd.isOwner(senderId, ctx.msg.key.id) || user?.premium) {
-                return await ctx.reply(formatter.quote("🤑 Kamu memiliki koin tak terbatas."));
+                return await ctx.reply(formatter.quote("🤑 Anda memiliki koin tak terbatas."));
             }
 
             const userCoin = user?.coin || 0;
-            return await ctx.reply(formatter.quote(`💰 Kamu memiliki ${userCoin} koin tersisa.`));
+            return await ctx.reply(formatter.quote(`💰 Anda memiliki ${userCoin} koin tersisa.`));
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);
         }

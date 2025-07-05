@@ -18,13 +18,13 @@ module.exports = {
         const pending = await ctx.group().pendingMembers();
 
         if (["a", "all"].includes(input.toLowerCase())) {
-            if (pending.length === 0) return await ctx.reply(formatter.quote("✅ Tidak ada anggota yang menunggu persetujuan."));
+            if (pending.length === 0) return await ctx.reply(formatter.quote("❎ Tidak ada yang menunggu persetujuan."));
 
             try {
                 const allJids = pending.map(p => p.jid);
                 await ctx.group().rejectPendingMembers(allJids);
 
-                return await ctx.reply(formatter.quote(`✅ Berhasil menolak semua anggota (${allJids.length}).`));
+                return await ctx.reply(formatter.quote(`✅ Berhasil menolak semua (${allJids.length}).`));
             } catch (error) {
                 return await tools.cmd.handleError(ctx, error);
             }
@@ -33,12 +33,12 @@ module.exports = {
         const accountJid = `${input.replace(/[^\d]/g, "")}@s.whatsapp.net`;
 
         const isPending = pending.some(p => p.jid === accountJid);
-        if (!isPending) return await ctx.reply(formatter.quote("❎ Akun tidak ditemukan di daftar anggota yang menunggu persetujuan."));
+        if (!isPending) return await ctx.reply(formatter.quote("❎ Nomor tidak terdaftar di grup!"));
 
         try {
             await ctx.group().rejectPendingMembers([accountJid]);
 
-            return await ctx.reply(formatter.quote("✅ Berhasil ditolak!"));
+            return await ctx.reply(formatter.quote("✅ Berhasil menolak nomor tersebut dari grup!"));
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);
         }

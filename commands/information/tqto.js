@@ -11,6 +11,6 @@ module.exports = {
             `${formatter.quote("Dan kepada semua pihak yang telah membantu dalam pengembangan bot ini. (Banyak kalo diketik satu-satu)")}\n` +
             "\n" +
             config.msg.footer
-        ); // Jika kamu tidak menghapus ini, terima kasih!
+        ); // Jika Anda tidak menghapus ini, terima kasih!
     }
 };

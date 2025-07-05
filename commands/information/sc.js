@@ -7,6 +7,6 @@ module.exports = {
             `${formatter.quote("https://github.com/rendichpras/rexbot-wabot")}\n` +
             "\n" +
             config.msg.footer
-        ); // Jika kamu tidak menghapus ini, terima kasih!
+        ); // Jika Anda tidak menghapus ini, terima kasih!
     }
 };

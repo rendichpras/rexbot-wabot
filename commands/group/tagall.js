@@ -6,7 +6,7 @@ module.exports = {
         group: true
     },
     code: async (ctx) => {
-        const input = ctx.args.join(" ") || formatter.quote("👋 Halo, Dunia!");
+        const input = ctx.args.join(" ") || formatter.quote("👋 Hai semua!");
 
         try {
             const members = await ctx.group().members();

@@ -16,12 +16,12 @@ module.exports = {
         if (!accountJid) return await ctx.reply({
             text: `${formatter.quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
                 `${formatter.quote(tools.msg.generateCmdExample(ctx.used, `@${ctx.getId(ctx.sender.jid)}`))}\n` +
-                formatter.quote(tools.msg.generateNotes(["Balas atau kutip pesan untuk menjadikan pengirim sebagai akun target."])),
+                formatter.quote(tools.msg.generateNotes(["Silakan balas atau kutip pesan untuk menentukan pengguna yang akan dijadikan target."])),
             mentions: [ctx.sender.jid]
         });
 
-        if (accountId === config.bot.id) return await ctx.reply(formatter.quote(`❎ Tidak bisa mengubah warning bot.`));
-        if (accountJid === await ctx.group().owner()) return await ctx.reply(formatter.quote("❎ Tidak bisa mengubah warning admin grup!"));
+        if (accountId === config.bot.id) return await ctx.reply(formatter.quote(`❎ Tidak bisa mengurangi warning bot.`));
+        if (accountJid === await ctx.group().owner()) return await ctx.reply(formatter.quote("❎ Tidak bisa mengurangi warning admin grup!"));
 
         try {
             const groupId = ctx.getId(ctx.id);
@@ -54,7 +54,7 @@ module.exports = {
                 }
             });
 
-            return await ctx.reply(formatter.quote(`✅ Warning dikurangi! Sekarang warning @${accountId} menjadi ${newWarning}/5.`), {
+            return await ctx.reply(formatter.quote(`✅ Warning berhasildikurangi! Sekarang warning @${accountId} menjadi ${newWarning}/5.`), {
                 mentions: [accountJid]
             });
         } catch (error) {

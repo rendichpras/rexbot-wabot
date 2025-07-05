@@ -16,7 +16,7 @@ module.exports = {
             `${formatter.quote(tools.msg.generatesFlagInfo({
                 "-ht": "Kirim dengan hidetag"
             }))}\n` +
-            formatter.quote(tools.msg.generateNotes(["Balas atau quote pesan untuk menjadikan teks sebagai input target, jika teks memerlukan baris baru.", `Gunakan ${formatter.monospace("blacklist")} untuk memasukkan grup ke dalam blacklist. (Hanya berfungsi pada grup)`]))
+            formatter.quote(tools.msg.generateNotes(["Untuk input multi-baris, Anda dapat membalas atau mengutip pesan yang diinginkan.", `Gunakan ${formatter.monospace("blacklist")} untuk memasukkan grup ke dalam blacklist. (Hanya berfungsi pada grup)`]))
         );
 
         if (["b", "blacklist"].includes(input) && ctx.isGroup()) {

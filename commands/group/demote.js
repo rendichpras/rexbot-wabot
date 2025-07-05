@@ -12,16 +12,16 @@ module.exports = {
         if (!accountJid) return await ctx.reply({
             text: `${formatter.quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
                 `${formatter.quote(tools.msg.generateCmdExample(ctx.used, `@${ctx.getId(ctx.sender.jid)}`))}\n` +
-                formatter.quote(tools.msg.generateNotes(["Balas atau kutip pesan untuk menjadikan pengirim sebagai akun target."])),
+                formatter.quote(tools.msg.generateNotes(["Silakan balas atau kutip pesan untuk menentukan pengguna yang akan dijadikan target."])),
             mentions: [ctx.sender.jid]
         });
 
-        if (!await ctx.group().isAdmin(accountJid)) return await ctx.reply(formatter.quote("❎ Dia adalah anggota!"));
+        if (!await ctx.group().isAdmin(accountJid)) return await ctx.reply(formatter.quote("❎ Nomor tersebut bukan admin!"));
 
         try {
             await ctx.group().demote([accountJid]);
 
-            return await ctx.reply(formatter.quote("✅ Berhasil diturunkan dari admin menjadi anggota!"));
+            return await ctx.reply(formatter.quote("✅ Berhasil menurunkan admin tersebut menjadi anggota!"));
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);
         }

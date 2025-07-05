@@ -18,7 +18,7 @@ module.exports = {
         const pending = await ctx.group().pendingMembers();
 
         if (["a", "all"].includes(input.toLowerCase())) {
-            if (pending.length === 0) return await ctx.reply(formatter.quote("✅ Tidak ada anggota yang menunggu persetujuan."));
+            if (pending.length === 0) return await ctx.reply(formatter.quote("❎ Tidak ada yang menunggu persetujuan."));
 
             try {
                 const allJids = pending.map(p => p.jid);

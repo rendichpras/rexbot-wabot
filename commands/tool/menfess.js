@@ -35,11 +35,11 @@ module.exports = {
         });
 
         if (activeMenfess?.fromNumber === senderId || activeMenfess?.toNumber === senderId) {
-            return await ctx.reply(formatter.quote("❎ Kamu tidak dapat mengirim menfess karena sedang terlibat dalam percakapan lain."));
+            return await ctx.reply(formatter.quote("❎ Anda tidak dapat mengirim menfess karena sedang terlibat dalam percakapan lain."));
         }
 
         if (activeMenfess?.fromNumber === targetId || activeMenfess?.toNumber === targetId) {
-            return await ctx.reply(formatter.quote("❎ Kamu tidak dapat mengirim menfess, karena dia sedang terlibat dalam percakapan lain."));
+            return await ctx.reply(formatter.quote("❎ Anda tidak dapat mengirim menfess, karena dia sedang terlibat dalam percakapan lain."));
         }
 
         if (targetId === senderId) {
@@ -63,7 +63,7 @@ module.exports = {
             await ctx.sendMessage(`${targetId}@s.whatsapp.net`, {
                 text: `${menfessText}\n` +
                     `${config.msg.readmore}\n` +
-                    formatter.quote(`Setiap pesan yang kamu kirim akan diteruskan ke orang tersebut. Jika ingin berhenti, cukup ketik ${formatter.monospace("delete")} atau ${formatter.monospace("stop")}.\nID Menfess: ${newMenfess.id}`),
+                    formatter.quote(`Setiap pesan yang Anda kirim akan diteruskan ke orang tersebut. Jika ingin berhenti, cukup ketik ${formatter.monospace("delete")} atau ${formatter.monospace("stop")}.\nID Menfess: ${newMenfess.id}`),
                 contextInfo: {
                     isForwarded: true,
                     forwardedNewsletterMessageInfo: {

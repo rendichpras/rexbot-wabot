@@ -15,12 +15,12 @@ module.exports = {
         if (!userJid && !coinAmount) return await ctx.reply({
             text: `${formatter.quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
                 `${formatter.quote(tools.msg.generateCmdExample(ctx.used, `@${senderId} 8`))}\n` +
-                formatter.quote(tools.msg.generateNotes(["Balas atau kutip pesan untuk menjadikan pengirim sebagai akun target."])),
+                formatter.quote(tools.msg.generateNotes(["Silakan balas atau kutip pesan untuk menentukan pengguna yang akan dijadikan target."])),
             mentions: [senderJid]
         });
 
         const isOnWhatsApp = await ctx.core.onWhatsApp(userJid);
-        if (isOnWhatsApp.length === 0) return await ctx.reply(formatter.quote("❎ Akun tidak ada di WhatsApp!"));
+        if (isOnWhatsApp.length === 0) return await ctx.reply(formatter.quote("❎ Nomor tidak terdaftar di WhatsApp!"));
 
         const sender = await prisma.user.findUnique({
             where: { phoneNumber: senderId }

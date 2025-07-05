@@ -17,12 +17,12 @@ module.exports = {
         if (!accountJid) return await ctx.reply({
             text: `${formatter.quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
                 `${formatter.quote(tools.msg.generateCmdExample(ctx.used, `@${senderId}`))}\n` +
-                formatter.quote(tools.msg.generateNotes(["Balas atau kutip pesan untuk menjadikan pengirim sebagai akun target."])),
+                formatter.quote(tools.msg.generateNotes(["Balas atau kutip pesan untuk memilih pengguna sebagai lawan bermain."])),
             mentions: [senderJid]
         });
 
         const existingGame = [...session.values()].find(game => game.players.includes(senderJid) || game.players.includes(accountJid));
-        if (existingGame) return await ctx.reply(formatter.quote("🎮 Salah satu pemain sedang dalam sesi permainan!"));
+        if (existingGame) return await ctx.reply(formatter.quote("🎮 Mohon tunggu, salah satu pemain sedang dalam sesi permainan lain"));
 
         try {
             const game = {
@@ -33,10 +33,10 @@ module.exports = {
             };
 
             await ctx.reply({
-                text: `${formatter.quote(`Kamu menantang @${accountId} untuk bermain suit!`)}\n` +
-                    `${formatter.quote(`Bonus: ${game.coin} Koin`)}\n` +
-                    `${formatter.quote(`Ketik ${formatter.monospace("accept")} untuk menerima.`)}\n` +
-                    `${formatter.quote(`Ketik ${formatter.monospace("reject")} untuk menolak.`)}\n` +
+                text: `${formatter.quote(`🎮 @${accountId}, Anda mendapat tantangan bermain Suit!`)}\n` +
+                    `${formatter.quote(`💰 Hadiah: ${game.coin} Koin`)}\n` +
+                    `${formatter.quote(`✅ Ketik ${formatter.monospace("accept")} untuk menerima tantangan`)}\n` +
+                    `${formatter.quote(`❌ Ketik ${formatter.monospace("reject")} untuk menolak tantangan`)}\n` +
                     "\n" +
                     config.msg.footer,
                 mentions: [accountJid]
@@ -58,13 +58,13 @@ module.exports = {
                 if (isGroup && participantId === accountId) {
                     if (["a", "accept"].includes(participantAnswer)) {
                         await ctx.sendMessage({
-                            text: formatter.quote(`@${accountId} menerima tantangan suit! Silahkan pilih di obrolan pribadi.`),
+                            text: formatter.quote(`✨ @${accountId} menerima tantangan! Silakan pilih pilihan Anda di obrolan pribadi.`),
                             mentions: [accountJid]
                         }, {
                             quoted: m
                         });
 
-                        const choiceText = formatter.quote("Silahkan pilih salah satu: gunting (g), kertas (k), batu (b)");
+                        const choiceText = formatter.quote("📝 Silakan pilih salah satu:\n- Gunting (g)\n- Kertas (k)\n- Batu (b)");
 
                         await ctx.sendMessage(senderJid, {
                             text: choiceText
@@ -76,7 +76,7 @@ module.exports = {
                         session.delete(senderJid);
                         session.delete(accountJid);
                         await ctx.reply({
-                            text: formatter.quote(`@${accountId} menolak tantangan suit.`),
+                            text: formatter.quote(`❎ @${accountId} menolak tantangan permainan`),
                             mentions: [accountJid]
                         }, {
                             quoted: m
@@ -113,7 +113,7 @@ module.exports = {
                         currentGame.choices.set(participantId, selectedChoice);
 
                         await ctx.reply({
-                            text: formatter.quote(`Anda memilih: ${selectedChoice}`)
+                            text: formatter.quote(`✅ Anda memilih: ${tools.msg.ucwords(selectedChoice)}`)
                         }, {
                             quoted: m
                         });
@@ -124,9 +124,9 @@ module.exports = {
 
                             let winner;
                             if (result === 0) {
-                                winner = "Seri!";
+                                winner = "🤝 Hasil: Seri!";
                             } else if (result === 1) {
-                                winner = `@${senderId} menang!`;
+                                winner = `🎉 @${senderId} memenangkan permainan!`;
                                 await prisma.user.upsert({
                                     where: { phoneNumber: senderId },
                                     create: {
@@ -141,7 +141,7 @@ module.exports = {
                                     }
                                 });
                             } else {
-                                winner = `@${accountId} menang!`;
+                                winner = `🎉 @${accountId} memenangkan permainan!`;
                                 await prisma.user.upsert({
                                     where: { phoneNumber: accountId },
                                     create: {
@@ -158,11 +158,11 @@ module.exports = {
                             }
 
                             await ctx.reply({
-                                text: `${formatter.quote("Hasil suit:")}\n` +
-                                    `${formatter.quote(`@${senderId}: ${sChoice}`)}\n` +
-                                    `${formatter.quote(`@${accountId}: ${aChoice}`)}\n` +
+                                text: `${formatter.quote("📊 Hasil Permainan:")}\n` +
+                                    `${formatter.quote(`@${senderId}: ${tools.msg.ucwords(sChoice)}`)}\n` +
+                                    `${formatter.quote(`@${accountId}: ${tools.msg.ucwords(aChoice)}`)}\n` +
                                     `${formatter.quote(winner)}\n` +
-                                    formatter.quote(`+${currentGame.coin} Koin`),
+                                    formatter.quote(`💰 Hadiah: ${currentGame.coin} Koin`),
                                 mentions: [senderJid, accountJid]
                             });
 

@@ -20,15 +20,26 @@ module.exports = {
 
         if (winGame < 5) {
             iqScore = Math.floor(Math.random() * 50) + 1;
-            feedback = iqScore < 50 ? "Hmm, mungkin kamu harus mencobanya lagi? Jangan menyerah!" : "Cukup bagus, terus bermain untuk meningkatkan keterampilan kamu!";
+            feedback = iqScore < 50 ? 
+                "Jangan khawatir, setiap orang memiliki kesempatan untuk berkembang. Teruslah berlatih!" : 
+                "Potensi Anda mulai terlihat. Teruslah mengasah kemampuan Anda!";
         } else if (winGame < 20) {
             iqScore = Math.floor(Math.random() * 50) + 51;
-            feedback = iqScore < 100 ? "Tidak buruk, tapi kamu bisa melakukannya lebih baik!" : "Kamu semakin pintar! Pertahankan momentum!";
+            feedback = iqScore < 100 ? 
+                "Anda menunjukkan perkembangan yang baik. Tingkatkan terus performa Anda!" : 
+                "Prestasi yang membanggakan! Anda berada di jalur yang tepat.";
         } else {
             iqScore = Math.floor(Math.random() * 50) + 101;
-            feedback = iqScore < 150 ? "Luar biasa! Kamu di atas rata-rata!" : "Wah, kamu jenius luar biasa! Kemenanganmu sangat mengesankan!";
+            feedback = iqScore < 150 ? 
+                "Pencapaian yang luar biasa! Anda memiliki kemampuan di atas rata-rata." : 
+                "Selamat! Anda menunjukkan kemampuan yang sangat istimewa.";
         }
 
-        return await ctx.reply(formatter.quote(`🧠 IQ-mu sebesar: ${iqScore}. ${feedback}`));
+        // Menampilkan hasil tes IQ
+        return await ctx.reply(
+            formatter.quote(`🧠 Hasil Tes IQ\n\n` +
+            `Skor IQ: ${iqScore}\n` +
+            `Evaluasi: ${feedback}`)
+        );
     }
 };

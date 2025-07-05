@@ -1,5 +1,5 @@
 const axios = require("axios");
-
+const mime = require("mime-types");
 
 module.exports = {
     name: "facebookdl",
@@ -13,7 +13,7 @@ module.exports = {
 
         if (!url) return await ctx.reply(
             `${formatter.quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-            formatter.quote(tools.msg.generateCmdExample(ctx.used, "https://web.facebook.com/hanabi.lemon/videos/455736192416206"))
+            formatter.quote(tools.msg.generateCmdExample(ctx.used, "https://www.facebook.com/share/v/1BsZYKx5PR/"))
         );
 
         const isUrl = await tools.cmd.isUrl(url);

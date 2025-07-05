@@ -17,7 +17,7 @@ module.exports = {
                 select: { text: true }
             });
 
-            const introText = group?.text?.intro || formatter.quote("❎ Grup ini tidak memiliki intro.");
+            const introText = group?.text?.intro || formatter.quote("❎ Grup tidak memiliki intro.");
 
             return await ctx.reply(introText);
         } catch (error) {

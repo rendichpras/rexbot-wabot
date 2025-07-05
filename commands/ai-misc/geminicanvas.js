@@ -13,7 +13,7 @@ module.exports = {
 
         if (!input) return await ctx.reply(
             `${formatter.quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-            formatter.quote(tools.msg.generateCmdExample(ctx.used, "make it evangelion art style"))
+            formatter.quote(tools.msg.generateCmdExample(ctx.used, "Mohon ubah gambar ini menjadi gaya seni pixel"))
         );
 
         const messageType = ctx.getMessageType();

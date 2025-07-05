@@ -27,7 +27,7 @@ module.exports = {
                         mutebot: "false"
                     }
                 });
-                return await ctx.reply(formatter.quote("✅ Berhasil me-unmute grup ini dari bot!"));
+                return await ctx.reply(formatter.quote("✅ Berhasil unmute grup dari bot!"));
             }
 
             const accountJid = ctx?.quoted?.senderJid || ctx.msg.message.extendedTextMessage?.contextInfo?.mentionedJid?.[0] || null;
@@ -36,12 +36,12 @@ module.exports = {
             if (!accountJid) return await ctx.reply({
                 text: `${formatter.quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
                     `${formatter.quote(tools.msg.generateCmdExample(ctx.used, `@${ctx.getId(ctx.sender.jid)}`))}\n` +
-                    formatter.quote(tools.msg.generateNotes(["Balas atau kutip pesan untuk menjadikan pengirim sebagai akun target.", `Ketik ${formatter.monospace(`${ctx.used.prefix + ctx.used.command} bot`)} untuk me-unmute bot.`])),
+                    formatter.quote(tools.msg.generateNotes(["Silakan balas atau kutip pesan untuk menentukan pengguna yang akan dijadikan target.", `Ketik ${formatter.monospace(`${ctx.used.prefix + ctx.used.command} bot`)} untuk me-unmute bot.`])),
                 mentions: [ctx.sender.jid]
             });
 
             if (accountId === config.bot.id) return await ctx.reply(formatter.quote(`❎ Ketik ${formatter.monospace(`${ctx.used.prefix + ctx.used.command} bot`)} untuk me-unmute bot.`));
-            if (accountJid === await ctx.group().owner()) return await ctx.reply(formatter.quote("❎ Dia adalah owner grup!"));
+            if (accountJid === await ctx.group().owner()) return await ctx.reply(formatter.quote("❎ Nomor tersebut adalah owner grup!"));
 
             const muteList = group?.mute || [];
             const updatedMuteList = muteList.filter(item => item !== accountId);
@@ -57,7 +57,7 @@ module.exports = {
                 }
             });
 
-            return await ctx.reply(formatter.quote("✅ Berhasil me-unmute pengguna itu dari grup ini!"));
+            return await ctx.reply(formatter.quote("✅ Berhasil unmute nomor tersebut dari grup!"));
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);
         }

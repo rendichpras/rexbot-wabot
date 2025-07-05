@@ -15,8 +15,8 @@ module.exports = {
             `${formatter.quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
             `${formatter.quote(tools.msg.generateCmdExample(ctx.used, "one last kiss - hikaru utada -i 8 -s spotify"))}\n` +
             formatter.quote(tools.msg.generatesFlagInfo({
-                "-i <number>": "Pilihan pada data indeks",
-                "-s <text>": "Sumber untuk memutar lagu (tersedia: soundcloud, spotify, youtube | default: youtube)"
+                "-i <number>": "Indeks data yang akan dipilih",
+                "-s <text>": "Platform sumber pemutaran musik (Opsi tersedia: SoundCloud, Spotify, YouTube | Nilai default: YouTube)" 
             }))
         );
 

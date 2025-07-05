@@ -15,7 +15,7 @@ module.exports = {
 
         if (!input) return await ctx.reply(
             `${formatter.quote(tools.msg.generateInstruction(["send", "reply"], ["text", "sticker"]))}\n` +
-            formatter.quote(tools.msg.generateCmdExample(ctx.used, "does this impact the lore?|@rei-ayanami"))
+            formatter.quote(tools.msg.generateCmdExample(ctx.used, "Sticker Watermark|@username"))
         );
 
         if (!await tools.cmd.checkQuotedMedia(ctx?.quoted, ["sticker"])) return await ctx.reply(formatter.quote(tools.msg.generateInstruction(["send", "reply"], ["sticker"])));
