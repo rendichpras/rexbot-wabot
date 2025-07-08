@@ -76,7 +76,15 @@ module.exports = (bot) => {
                 await ctx.reply({
                     text: formatter.quote(`🎉 Selamat! Anda telah mencapai level ${newUserLevel}!`),
                     footer: formatter.italic(`Untuk menonaktifkan notifikasi kenaikan level, silakan gunakan perintah ${formatter.monospace(`${ctx.used.prefix}setprofile autolevelup`)}`),
-                    interactiveButtons: []
+                    footer: config.msg.footer,
+                    buttons: [{
+                        buttonId: `${ctx.used.prefix}setprofile autolevelup`,
+                        buttonText: {
+                            displayText: "Nonaktifkan Pesan Autolevelup"
+                        },
+                        type: 1
+                    }],
+                    headerType: 1
                 });
             }
 

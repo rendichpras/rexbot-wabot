@@ -56,7 +56,7 @@ async function handleWelcome(bot, m, type, isSimulate = false) {
                 }
             }
         }, {
-            quoted: tools.cmd.fakeMetaAiQuotedText(`Event: ${type}`)
+            quoted: tools.cmd.fakeMetaAiQuotedText(config.msg.footer)
         });
 
         if (isWelcome && groupDb?.text?.intro) await bot.core.sendMessage(groupJid, {
@@ -275,7 +275,7 @@ module.exports = (bot) => {
 
             // Penanganan antimedia
             for (const type of ["audio", "document", "gif", "image", "sticker", "video"]) {
-                if (groupDb?.option?.[`anti${type}`] && !isOwner && !await ctx.group().isSenderAdmin() && !isCmd) {
+                if (groupDb?.option?.[`anti${type}`] && !isOwner && !await ctx.group().isSenderAdmin()) {
                     const checkMedia = await tools.cmd.checkMedia(ctx.getMessageType(), type);
                     if (checkMedia) {
                         await ctx.reply(formatter.quote(`🚫 Mohon maaf, pengiriman ${type} tidak diizinkan dalam grup ini`));
@@ -290,7 +290,7 @@ module.exports = (bot) => {
             }
 
             // Penanganan antilink
-            if (groupDb?.option?.antilink && !isOwner && !await ctx.group().isSenderAdmin() && !isCmd) {
+            if (groupDb?.option?.antilink && !isOwner && !await ctx.group().isSenderAdmin()) {
                 if (m.content && await tools.cmd.isUrl(m.content)) {
                     await ctx.reply(formatter.quote("🔗 Mohon maaf, pengiriman tautan tidak diizinkan dalam grup ini"));
                     await ctx.deleteMessage(m.key);
@@ -303,7 +303,7 @@ module.exports = (bot) => {
             }
 
             // Penanganan antinsfw
-            if (groupDb?.option?.antinsfw && !isOwner && !await ctx.group().isSenderAdmin() && !isCmd) {
+            if (groupDb?.option?.antinsfw && !isOwner && !await ctx.group().isSenderAdmin()) {
                 const checkMedia = await tools.cmd.checkMedia(ctx.getMessageType(), "image");
                 if (checkMedia) {
                     const buffer = await ctx.msg.media.toBuffer();
@@ -326,7 +326,7 @@ module.exports = (bot) => {
             }
 
             // Penanganan antispam
-            if (groupDb?.option?.antispam && !isOwner && !await ctx.group().isSenderAdmin() && !isCmd) {
+            if (groupDb?.option?.antispam && !isOwner && !await ctx.group().isSenderAdmin()) {
                 const now = Date.now();
                 const spamData = groupDb?.spam || {};
                 const data = spamData[senderId] || {
@@ -334,13 +334,13 @@ module.exports = (bot) => {
                     lastMessageTime: 0
                 };
 
-                const timeDiff = now - data.lastMessageTime;
-                const newCount = timeDiff < 5000 ? data.count + 1 : 1;
+                const timeDiff = now - userSpam.lastMessageTime;
+                const newCount = timeDiff < 5000 ? userSpam.count + 1 : 1;
 
-                spamData[senderId] = {
-                    count: newCount,
-                    lastMessageTime: now
-                };
+                userSpam.count = newCount;
+                userSpam.lastMessageTime = now;
+
+                if (!spamData.some(s => s.userId === senderId)) spamData.push(userSpam);
 
                 await prisma.group.update({
                     where: { id: groupId },
@@ -355,17 +355,17 @@ module.exports = (bot) => {
                     } else {
                         await addWarning(ctx, groupDb, senderJid, groupId);
                     }
-                    delete spamData[senderId];
+                    const updatedSpamData = spamData.filter(s => s.userId !== senderId);
                     await prisma.group.update({
                         where: { id: groupId },
-                        data: { spam: spamData }
+                        data: { spam: updatedSpamData }
                     });
                 }
             }
 
             // Penanganan antitagsw
-            if (groupDb?.option?.antitagsw && !isOwner && !await ctx.group().isSenderAdmin() && !isCmd) {
-                const checkMedia = await tools.cmd.checkMedia(ctx.getMessageType(), "groupStatusMention") && m.message?.groupStatusMentionMessage?.protocolMessage?.type === 25;
+            if (groupDb?.option?.antitagsw && !isOwner && !await ctx.group().isSenderAdmin()) {
+                const checkMedia = await tools.cmd.checkMedia(ctx.getMessageType(), "groupStatusMention") || m.message?.groupStatusMentionMessage?.protocolMessage?.type === 25;
                 if (checkMedia) {
                     await ctx.reply(formatter.quote(`🚫 Mohon tidak menandai grup dalam status WhatsApp`));
                     await ctx.deleteMessage(m.key);
@@ -378,7 +378,7 @@ module.exports = (bot) => {
             }
 
             // Penanganan antitoxic
-            if (groupDb?.option?.antitoxic && !isOwner && !await ctx.group().isSenderAdmin() && !isCmd) {
+            if (groupDb?.option?.antitoxic && !isOwner && !await ctx.group().isSenderAdmin()) {
                 const toxicRegex = /anj(k|g)|ajn?(g|k)|a?njin(g|k)|bajingan|b(a?n)?gsa?t|ko?nto?l|me?me?(k|q)|pe?pe?(k|q)|meki|titi(t|d)|pe?ler|tetek|toket|ngewe|go?blo?k|to?lo?l|idiot|(k|ng)e?nto?(t|d)|jembut|bego|dajj?al|janc(u|o)k|pantek|puki ?(mak)?|kimak|kampang|lonte|col(i|mek?)|pelacur|henceu?t|nigga|fuck|dick|bitch|tits|bastard|asshole|dontol|kontoi|ontol/i;
                 if (m.content && toxicRegex.test(m.content)) {
                     await ctx.reply(formatter.quote("🚫 Mohon gunakan bahasa yang sopan dalam grup ini"));

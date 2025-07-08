@@ -9,7 +9,7 @@ module.exports = {
     },
     code: async (ctx) => {
         const groupJid = ctx.isGroup() ? ctx.id : (ctx.args[0] ? `${ctx.args[0].replace(/[^\d]/g, "")}@g.us` : null);
-        const daysAmount = ctx.args[ctx.isGroup() ? 0 : 1] ? parseInt(ctx.args[ctx.isGroup() ? 0 : 1], 10) : null;
+        const daysAmount = parseInt(ctx.args[ctx.isGroup() ? 0 : 1], 10) || null;
 
         if (!groupJid) return await ctx.reply(
             `${formatter.quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
@@ -20,10 +20,9 @@ module.exports = {
             }))
         );
 
-        if (daysAmount !== null && daysAmount <= 0) return await ctx.reply(formatter.quote("❎ Durasi sewa (dalam hari) harus lebih dari 0!"));
-
         const group = await ctx.group(groupJid);
         if (!group) return await ctx.reply(formatter.quote("❎ Grup tidak valid atau bot tidak ada di grup tersebut!"));
+        if (daysAmount !== null && daysAmount <= 0) return await ctx.reply(formatter.quote("❎ Durasi sewa (dalam hari) harus lebih dari 0!"));
 
         try {
             const groupId = ctx.getId(groupJid);
@@ -60,7 +59,7 @@ module.exports = {
                     }).catch(() => { });
                 }
 
-                return await ctx.reply(formatter.quote(`✅ Berhasil menyewakan bot ke grup ini selama ${daysAmount} hari!`));
+                return await ctx.reply(formatter.quote(`✅ Berhasil menyewakan bot ke grup ${ctx.isGroup() ? "ini" : "itu"} selama ${daysAmount} hari!`));
             } else {
                 // Update status sewa tanpa expiration menggunakan Prisma
                 await prisma.group.upsert({
@@ -82,7 +81,7 @@ module.exports = {
                     }).catch(() => { });
                 }
 
-                return await ctx.reply(formatter.quote(`✅ Berhasil menyewakan bot ke grup ini selamanya!`));
+                return await ctx.reply(formatter.quote(`✅ Berhasil menyewakan bot ke grup ${ctx.isGroup() ? "ini" : "itu"} selamanya!`));
             }
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);
