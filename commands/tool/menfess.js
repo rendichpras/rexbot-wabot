@@ -47,6 +47,14 @@ module.exports = {
         }
 
         try {
+            const buttons = [{
+                buttonId: "delete",
+                buttonText: {
+                    displayText: "Hapus Menfess"
+                },
+                type: 1
+            }];
+            
             // Generate Menfess ID menggunakan fungsi dari tools/cmd.js
             const menfessId = await tools.cmd.generateMenfessId();
 
@@ -61,21 +69,20 @@ module.exports = {
             });
 
             await ctx.sendMessage(`${targetId}@s.whatsapp.net`, {
-                text: `${menfessText}\n` +
-                    `${config.msg.readmore}\n` +
-                    formatter.quote(`Setiap pesan yang Anda kirim akan diteruskan ke orang tersebut. Jika ingin berhenti, cukup ketik ${formatter.monospace("delete")} atau ${formatter.monospace("stop")}.\nID Menfess: ${newMenfess.id}`),
-                contextInfo: {
-                    isForwarded: true,
-                    forwardedNewsletterMessageInfo: {
-                        newsletterJid: config.bot.newsletterJid,
-                        newsletterName: config.bot.name
-                    }
-                }
+                text: menfessText,
+                footer: formatter.quote(`Setiap pesan yang kamu kirim akan diteruskan ke orang tersebut.`),
+                buttons,
+                headerType: 1
             }, {
                 quoted: tools.cmd.fakeMetaAiQuotedText("Seseorang telah mengirimi-mu menfess.")
             });
 
-            return await ctx.reply(formatter.quote(`✅ Pesan berhasil terkirim! Jika ingin berhenti, cukup ketik ${formatter.monospace("delete")} atau ${formatter.monospace("stop")}.\nID Menfess: ${newMenfess.id}`));
+            return await ctx.reply({
+                text: formatter.quote(`✅ Pesan berhasil terkirim!\nID Menfess: ${newMenfess.id}`),
+                footer: config.msg.footer,
+                buttons,
+                headerType: 1
+            });
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);
         }

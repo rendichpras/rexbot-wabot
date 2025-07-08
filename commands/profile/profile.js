@@ -40,17 +40,9 @@ module.exports = {
                     `${formatter.quote(`Level: ${user?.level || 0} (${user?.xp || 0}/100)`)}\n` +
                     `${formatter.quote(`Koin: ${isOwner || user?.premium ? "Tak terbatas" : user?.coin || 0}`)}\n` +
                     `${formatter.quote(`Menang: ${user?.winGame || 0}`)}\n` +
-                    `${formatter.quote(`Peringkat: ${userRank}`)}\n` +
-                    "\n" +
-                    config.msg.footer,
-                contextInfo: {
-                    externalAdReply: {
-                        title: config.bot.name,
-                        body: config.bot.version,
-                        mediaType: 1,
-                        thumbnailUrl: profilePictureUrl
-                    }
-                }
+                    formatter.quote(`Peringkat: ${userRank}`),
+                footer: config.msg.footer,
+                interactiveButtons: []
             });
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);

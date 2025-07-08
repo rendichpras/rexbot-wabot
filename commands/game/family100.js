@@ -92,7 +92,7 @@ module.exports = {
                         });
                         return collector.stop();
                     }
-                } else if (["s"].includes(participantAnswer)) {
+                } else if (participantAnswer === "surrender") {
                     const remaining = [...game.answers].map(tools.msg.ucwords).join(", ").replace(/, ([^,]*)$/, ", dan $1");
                     session.delete(ctx.id);
                     await ctx.sendMessage(ctx.id, {

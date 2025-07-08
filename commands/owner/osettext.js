@@ -11,7 +11,7 @@ module.exports = {
         const key = ctx.args[0] || null;
         const text = ctx.args.slice(1).join(" ") || ctx?.quoted?.conversation || (ctx.quoted && ((Object.values(ctx.quoted).find(v => v?.text || v?.caption)?.text) || (Object.values(ctx.quoted).find(v => v?.text || v?.caption)?.caption))) || null;
 
-        if (["l", "list"].includes(key.toLowerCase())) {
+        if (key.toLowercase() === "list") {
             const listText = await tools.list.get("osettext");
             return await ctx.reply(listText);
         }
@@ -37,7 +37,7 @@ module.exports = {
                 select: { settings: true }
             }) || { settings: {} };
 
-            if (["d", "delete"].includes(text.toLowerCase())) {
+            if (text.toLowerCase() === "delete") {
                 // Hapus teks dari settings
                 const updatedSettings = { ...botSettings.settings };
                 delete updatedSettings[textKey];

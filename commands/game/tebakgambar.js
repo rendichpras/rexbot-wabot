@@ -30,12 +30,23 @@ module.exports = {
                 mimetype: tools.mime.lookup("jpeg"),
                 caption: `${formatter.quote(`📝 Deskripsi: ${result.deskripsi}`)}\n` +
                     `${formatter.quote(`💰 Hadiah: ${game.coin} Koin`)}\n` +
-                    `${formatter.quote(`⏳ Waktu: ${tools.msg.convertMsToDuration(game.timeout)}`)}\n` +
-                    `${formatter.quote(`ℹ️ Ketik ${formatter.monospace("h")} untuk mendapatkan bantuan`)}\n` +
-                    `${formatter.quote(`❌ Ketik ${formatter.monospace("s")} untuk mengakhiri permainan`)}\n` +
-                    "\n" +
-                    config.msg.footer
-            });
+                    formatter.quote(`⏳ Waktu: ${tools.msg.convertMsToDuration(game.timeout)}`),
+                        footer: config.msg.footer,
+                                buttons: [{
+                                    buttonId: "hint",
+                                    buttonText: {
+                                        displayText: "Petunjuk"
+                                    },
+                                    type: 1
+                                }, {
+                                    buttonId: "surrender",
+                                    buttonText: {
+                                        displayText: "Menyerah"
+                                    },
+                                    type: 1
+                                }],
+                                headerType: 1
+                            });
 
             const collector = ctx.MessageCollector({
                 time: game.timeout
@@ -73,7 +84,7 @@ module.exports = {
                         quoted: m
                     });
                     return collector.stop();
-                } else if (["h"].includes(participantAnswer)) {
+                } else if (participantAnswer === "hint") {
                     const clue = game.answer.replace(/[aiueo]/g, "_");
                     await ctx.sendMessage(ctx.id, {
                         text: `${formatter.quote("💡 Petunjuk:")}\n` +
@@ -81,7 +92,7 @@ module.exports = {
                     }, {
                         quoted: m
                     });
-                } else if (["s"].includes(participantAnswer)) {
+                } else if (participantAnswer === "surrender") {
                     session.delete(ctx.id);
                     await ctx.sendMessage(ctx.id, {
                         text: `${formatter.quote("🏳️ Permainan diakhiri")}\n` +

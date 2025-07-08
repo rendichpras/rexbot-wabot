@@ -13,7 +13,7 @@ module.exports = {
             formatter.quote(tools.msg.generateNotes([`Silakan ketik ${formatter.monospace(`${ctx.used.prefix + ctx.used.command} list`)} untuk menampilkan daftar lengkap.`]))
         );
 
-        if (["l", "list"].includes(input.toLowerCase())) {
+        if (input.toLowerCase() === "list") {
             const listText = await tools.list.get("claim");
             return await ctx.reply(listText);
         }

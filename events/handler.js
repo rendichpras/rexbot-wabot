@@ -159,8 +159,8 @@ module.exports = (bot) => {
         // Pengecekan mode bot
         if (groupDb?.mutebot === true && !isOwner && !await ctx.group().isSenderAdmin()) return;
         if (groupDb?.mutebot === "owner" && !isOwner) return;
-        if (botDb?.mode === "group" && isPrivate && !isOwner) return;
-        if (botDb?.mode === "private" && isGroup && !isOwner) return;
+        if (botDb?.mode === "group" && isPrivate && !isOwner && !userDb?.premium) return;
+        if (botDb?.mode === "private" && isGroup && !isOwner && !userDb?.premium) return;
         if (botDb?.mode === "self" && !isOwner) return;
 
         // Pengecekan untuk tidak tersedia pada malam hari
@@ -179,19 +179,7 @@ module.exports = (bot) => {
             config.bot.uptime = tools.msg.convertMsToDuration(Date.now() - config.bot.readyAt); // Penangan pada uptime
 
             // Penanganan database pengguna
-            if (!userDb) {
-                await prisma.user.create({
-                    data: {
-                        phoneNumber: senderId,
-                        username: `@user_${senderId.slice(-6)}`,
-                        coin: isOwner ? 0 : 500,
-                        xp: 0,
-                        level: 1,
-                        premium: false,
-                        banned: false
-                    }
-                });
-            } else {
+            if (userDb) {
                 if (isOwner || userDb?.premium) {
                     await prisma.user.update({
                         where: { phoneNumber: senderId },
@@ -221,7 +209,19 @@ module.exports = (bot) => {
                 }
             }
 
-            if (isCmd?.didyoumean) await ctx.reply(formatter.quote(`ℹ️ Mungkin maksud Anda ${formatter.monospace(isCmd.prefix + isCmd.didyoumean)}?`));
+             // Did you mean?
+             if (isCmd?.didyoumean) await ctx.reply({
+                text: formatter.quote(`🧐 Apakah maksud Anda ${formatter.monospace(isCmd.prefix + isCmd.didyoumean)}?`),
+                footer: config.msg.footer,
+                buttons: [{
+                    buttonId: `${isCmd.prefix + isCmd.didyoumean} ${isCmd.input}`,
+                    buttonText: {
+                        displayText: "Ya, benar!"
+                    },
+                    type: 1
+                }],
+                headerType: 1
+            });
 
             // Penanganan AFK
             if (userDb?.afk?.reason || userDb?.afk?.timestamp) {
@@ -413,7 +413,7 @@ module.exports = (bot) => {
                     const targetNumber = senderId === menfess.fromNumber ? menfess.toNumber : menfess.fromNumber;
                     const targetId = `${targetNumber}@s.whatsapp.net`;
 
-                    if (m.content?.match(/\b(d|s|delete|stop)\b/i)) {
+                    if (m.content === "delete") {
                         const replyText = formatter.quote("✅ Sesi menfess telah diakhiri");
                         await Promise.all([
                             ctx.reply(replyText),

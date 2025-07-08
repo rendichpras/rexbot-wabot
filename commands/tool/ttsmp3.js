@@ -20,7 +20,7 @@ module.exports = {
             formatter.quote(tools.msg.generateNotes([`Silakan ketik ${formatter.monospace(`${ctx.used.prefix + ctx.used.command} list`)} untuk menampilkan daftar lengkap.`, "Untuk input multi-baris, Anda dapat membalas atau mengutip pesan yang diinginkan."]))
         );
 
-        if (["l", "list"].includes(input.toLowerCase())) {
+        if (input.toLowerCase() === "list") {
             const listText = await tools.list.get("ttsmp3");
             return await ctx.reply(listText);
         }

@@ -10,12 +10,10 @@ async function checkCoin(requiredCoin, userDb, senderId, isOwner) {
     if (isOwner || userDb?.premium) return false;
     if (userDb?.coin < requiredCoin) return true;
     
-    if (userDb) {
         await prisma.user.update({
             where: { phoneNumber: senderId },
             data: { coin: { decrement: requiredCoin } }
         });
-    }
     
     return false;
 }
@@ -39,11 +37,26 @@ module.exports = (bot) => {
             isGroup ? prisma.group.findUnique({ where: { id: groupId } }) : null
         ]);
 
+        // Buat user baru jika belum ada
+        if (!userDb) {
+            await prisma.user.create({
+                data: {
+                    phoneNumber: senderId,
+                    username: `@user_${senderId.slice(-6)}`,
+                    coin: isOwner ? 0 : 500,
+                    xp: 0,
+                    level: 1,
+                    premium: false,
+                    banned: false
+                }
+            });
+        }
+
         // Pengecekan mode bot (group, private, self)
         if (groupDb?.mutebot === true && !isOwner && !await ctx.group().isSenderAdmin()) return;
         if (groupDb?.mutebot === "owner" && !isOwner) return;
-        if (botDb?.mode === "group" && isPrivate && !isOwner) return;
-        if (botDb?.mode === "private" && isGroup && !isOwner) return;
+        if (botDb?.mode === "group" && isPrivate && !isOwner && !userDb?.premium) return;
+        if (botDb?.mode === "private" && isGroup && !isOwner && !userDb?.premium) return;
         if (botDb?.mode === "self" && !isOwner) return;
 
         // Pengecekan mute pada grup
@@ -61,17 +74,9 @@ module.exports = (bot) => {
             if (userDb?.autolevelup) {
                 const profilePictureUrl = await ctx.core.profilePictureUrl(ctx.sender.jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
                 await ctx.reply({
-                    text: `${formatter.quote(`🎉 Selamat! Anda telah mencapai level ${newUserLevel}`)}\n` +
-                        `${config.msg.readmore}\n` +
-                        formatter.quote(tools.msg.generateNotes([`Untuk menonaktifkan notifikasi kenaikan level, silakan gunakan perintah ${formatter.monospace(`${ctx.used.prefix}setprofile autolevelup`)}`])),
-                    contextInfo: {
-                        externalAdReply: {
-                            title: config.bot.name,
-                            body: config.bot.version,
-                            mediaType: 1,
-                            thumbnailUrl: profilePictureUrl
-                        }
-                    }
+                    text: formatter.quote(`🎉 Selamat! Anda telah mencapai level ${newUserLevel}!`),
+                    footer: formatter.quote(`Untuk menonaktifkan notifikasi kenaikan level, silakan gunakan perintah ${formatter.monospace(`${ctx.used.prefix}setprofile autolevelup`)}`),
+                    interactiveButtons: []
                 });
             }
 
@@ -149,11 +154,11 @@ module.exports = (bot) => {
                 const oneDay = 24 * 60 * 60 * 1000;
                 if (!lastSentMsg || (now - lastSentMsg) > oneDay) {
                     await simulateTyping();
-                    await ctx.reply(
-                        `${msg}\n` +
-                        `${config.msg.readmore}\n` +
-                        formatter.quote(tools.msg.generateNotes([`Untuk pemberitahuan selanjutnya akan ditampilkan dalam bentuk reaksi emoji '${reaction}'`]))
-                    );
+                    await ctx.reply({
+                        text: msg,
+                        footer: formatter.quote(`Untuk pemberitahuan selanjutnya akan ditampilkan dalam bentuk reaksi emoji '${reaction}'.`),
+                        interactiveButtons: []
+                    });
                     
                     await prisma.user.update({
                         where: { phoneNumber: senderId },
@@ -241,11 +246,11 @@ module.exports = (bot) => {
                 const oneDay = 24 * 60 * 60 * 1000;
                 if (!lastSentMsg || (now - lastSentMsg) > oneDay) {
                     await simulateTyping();
-                    await ctx.reply(
-                        `${msg}\n` +
-                        `${config.msg.readmore}\n` +
-                        formatter.quote(tools.msg.generateNotes([`Untuk pemberitahuan selanjutnya akan ditampilkan dalam bentuk reaksi emoji '${reaction}'`]))
-                    );
+                    await ctx.reply({
+                        text: msg,
+                        footer: formatter.quote(`Untuk pemberitahuan selanjutnya akan ditampilkan dalam bentuk reaksi emoji '${reaction}'.`),
+                        interactiveButtons: []
+                    });
 
                     await prisma.user.upsert({
                         where: {

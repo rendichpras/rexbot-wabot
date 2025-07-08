@@ -14,7 +14,7 @@ module.exports = {
         const text = ctx.args.slice(1).join(" ") || ctx?.quoted?.conversation || (ctx.quoted && ((Object.values(ctx.quoted).find(v => v?.text || v?.caption)?.text) || (Object.values(ctx.quoted).find(v => v?.text || v?.caption)?.caption))) || null;
 
         
-        if (["l", "list"].includes(key.toLowerCase())) {
+        if (key.toLowerCase() === "list") {
             const listText = await tools.list.get("settext");
             return await ctx.reply(listText);
         }
@@ -41,7 +41,7 @@ module.exports = {
 
             const currentTexts = group?.text || {};
 
-            if (["d", "delete"].includes(text.toLowerCase())) {
+            if (text.toLowerCase() === "delete") {
                 // Hapus teks spesifik
                 delete currentTexts[textKey];
                 

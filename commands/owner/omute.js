@@ -10,7 +10,7 @@ module.exports = {
     code: async (ctx) => {
         const groupId = ctx.getId(ctx.id);
 
-        if (["b", "bot"].includes(ctx.args[0]?.toLowerCase())) {
+        if (ctx.args[0]?.toLowerCase() === "bot") {
             // Update status mute bot untuk grup
             await prisma.group.upsert({
                 where: { id: groupId },

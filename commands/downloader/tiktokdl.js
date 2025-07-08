@@ -44,9 +44,9 @@ module.exports = {
                     url: video.url
                 },
                 mimetype: tools.mime.lookup("mp4"),
-                caption: `${formatter.quote(`URL: ${url}`)}\n` +
-                    "\n" +
-                    config.msg.footer
+                caption: formatter.quote(`URL: ${url}`),
+                footer: config.msg.footer,
+                interactiveButtons: []
             });
 
             const images = result.filter(item => item.type === "photo");
@@ -55,7 +55,10 @@ module.exports = {
                     image: {
                         url: image.url
                     },
-                    mimetype: tools.mime.lookup("jpeg")
+                    mimetype: tools.mime.lookup("jpeg"),
+                    caption: formatter.quote(`URL: ${url}`),
+                    footer: config.msg.footer,
+                    interactiveButtons: []
                 });
             }
         } catch (error) {

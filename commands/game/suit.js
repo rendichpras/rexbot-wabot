@@ -35,11 +35,23 @@ module.exports = {
             await ctx.reply({
                 text: `${formatter.quote(`🎮 @${accountId}, Anda mendapat tantangan bermain Suit!`)}\n` +
                     `${formatter.quote(`💰 Hadiah: ${game.coin} Koin`)}\n` +
-                    `${formatter.quote(`✅ Ketik ${formatter.monospace("accept")} untuk menerima tantangan`)}\n` +
-                    `${formatter.quote(`❌ Ketik ${formatter.monospace("reject")} untuk menolak tantangan`)}\n` +
-                    "\n" +
-                    config.msg.footer,
-                mentions: [accountJid]
+                    formatter.quote(`Bonus: ${game.coin} Koin`),
+                mentions: [accountJid],
+                footer: config.msg.footer,
+                buttons: [{
+                    buttonId: "accept",
+                    buttonText: {
+                        displayText: "Terima"
+                    },
+                    type: 1
+                }, {
+                    buttonId: "reject",
+                    buttonText: {
+                        displayText: "Tolak"
+                    },
+                    type: 1
+                }],
+                headerType: 1
             });
 
             session.set(senderJid, game);
@@ -56,7 +68,7 @@ module.exports = {
                 const isGroup = m.jid.endsWith("@g.us");
 
                 if (isGroup && participantId === accountId) {
-                    if (["a", "accept"].includes(participantAnswer)) {
+                    if (participantAnswer === "accept") {
                         await ctx.sendMessage({
                             text: formatter.quote(`✨ @${accountId} menerima tantangan! Silakan pilih pilihan Anda di obrolan pribadi.`),
                             mentions: [accountJid]
@@ -64,15 +76,42 @@ module.exports = {
                             quoted: m
                         });
 
-                        const choiceText = formatter.quote("📝 Silakan pilih salah satu:\n- Gunting (g)\n- Kertas (k)\n- Batu (b)");
+                        const choiceText = formatter.quote("Silahkan pilih salah satu!");
+                        const buttons = [{
+                                buttonId: "gunting",
+                                buttonText: {
+                                    displayText: "Gunting"
+                                },
+                                type: 1
+                            }, {
+                                buttonId: "kertas",
+                                buttonText: {
+                                    displayText: "Kertas"
+                                },
+                                type: 1
+                            },
+                            {
+                                buttonId: "batu",
+                                buttonText: {
+                                    displayText: "Batu"
+                                },
+                                type: 1
+                            }
+                        ];
 
                         await ctx.sendMessage(senderJid, {
-                            text: choiceText
+                            text: choiceText,
+                            footer: config.msg.footer,
+                            buttons,
+                            headerType: 1
                         });
                         await ctx.sendMessage(accountJid, {
-                            text: choiceText
+                            text: choiceText,
+                            footer: config.msg.footer,
+                            buttons,
+                            headerType: 1
                         });
-                    } else if (["r", "reject"].includes(participantAnswer)) {
+                    } else if (participantAnswer === "reject") {
                         session.delete(senderJid);
                         session.delete(accountJid);
                         await ctx.reply({
@@ -90,24 +129,12 @@ module.exports = {
                     const currentGame = session.get(participantJid);
                     if (!currentGame) return;
 
-                    const choiceMap = {
-                        "1": "batu",
-                        "2": "kertas",
-                        "3": "gunting",
-                        "b": "batu",
-                        "k": "kertas",
-                        "g": "gunting",
-                        "batu": "batu",
-                        "kertas": "kertas",
-                        "gunting": "gunting"
-                    };
-
                     const choices = {
                         batu: 0,
                         kertas: 1,
                         gunting: 2
                     };
-                    const selectedChoice = choiceMap[participantAnswer];
+                    const selectedChoice = choices[participantAnswer];
 
                     if (selectedChoice) {
                         currentGame.choices.set(participantId, selectedChoice);

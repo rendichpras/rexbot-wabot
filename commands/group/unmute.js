@@ -16,7 +16,7 @@ module.exports = {
                 where: { id: groupId }
             });
 
-            if (["b", "bot"].includes(ctx.args[0]?.toLowerCase())) {
+            if (ctx.args[0]?.toLowerCase() === "bot") {
                 await prisma.group.upsert({
                     where: { id: groupId },
                     create: {

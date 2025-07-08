@@ -19,7 +19,7 @@ module.exports = {
             formatter.quote(tools.msg.generateNotes(["Untuk input multi-baris, Anda dapat membalas atau mengutip pesan yang diinginkan.", `Gunakan ${formatter.monospace("blacklist")} untuk memasukkan grup ke dalam blacklist. (Hanya berfungsi pada grup)`]))
         );
 
-        if (["b", "blacklist"].includes(input) && ctx.isGroup()) {
+        if (input === "blacklist" && ctx.isGroup()) {
             // Ambil data bot yang ada
             const botSettings = await prisma.bot.findUnique({
                 where: { id: "bot" },

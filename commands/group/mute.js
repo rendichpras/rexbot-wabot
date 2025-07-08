@@ -27,7 +27,7 @@ module.exports = {
                 });
             }
 
-            if (["b", "bot"].includes(ctx.args[0]?.toLowerCase())) {
+            if (ctx.args[0]?.toLowerCase() === "bot") {
                 await prisma.group.update({
                     where: { id: groupId },
                     data: { mutebot: "true" }

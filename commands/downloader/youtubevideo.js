@@ -54,10 +54,7 @@ module.exports = {
                     url: result.downloadUrl
                 },
                 fileName: `${result.title}.mp4`,
-                mimetype: tools.mime.lookup("mp4"),
-                caption: `${formatter.quote(`URL: ${url}`)}\n` +
-                    "\n" +
-                    config.msg.footer
+                mimetype: tools.mime.lookup("mp4")
             });
 
             return await ctx.reply({
@@ -65,9 +62,9 @@ module.exports = {
                     url: result.downloadUrl
                 },
                 mimetype: tools.mime.lookup("mp4"),
-                caption: `${formatter.quote(`URL: ${url}`)}\n` +
-                    "\n" +
-                    config.msg.footer
+                caption: formatter.quote(`URL: ${url}`),
+                footer: config.msg.footer,
+                interactiveButtons: []
             });
         } catch (error) {
             return await tools.cmd.handleError(ctx, error, true);

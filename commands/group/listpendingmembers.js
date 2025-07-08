@@ -10,7 +10,7 @@ module.exports = {
     code: async (ctx) => {
         const pending = await ctx.group().pendingMembers();
 
-        if (!pending || pending.length === 0) return await ctx.reply(formatter.quote("❎ Tidak ada yang menunggu persetujuan."));
+        if (!pending || pending.length === 0) return await ctx.reply(formatter.quote("✅ Tidak ada yang menunggu persetujuan."));
 
         try {
             const resultText = pending.map((member, index) => {
@@ -18,11 +18,11 @@ module.exports = {
                 return formatter.quote(`${index + 1}. ${id}`);
             }).join("\n");
 
-            return await ctx.reply(
-                `${resultText}\n` +
-                "\n" +
-                config.msg.footer
-            );
+            return await ctx.reply({
+                text: resultText,
+                footer: config.msg.footer,
+                interactiveButtons: []
+            });
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);
         }
