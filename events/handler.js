@@ -204,16 +204,10 @@ module.exports = (bot) => {
                         data: { coin: 500 }
                     });
                 }
-                if (!userDb?.uid || userDb?.uid !== tools.cmd.generateUID(senderId)) {
-                    await prisma.user.update({
-                        where: { phoneNumber: senderId },
-                        data: { uid: tools.cmd.generateUID(senderId) }
-                    });
-                }
                 if (!userDb?.username) {
                     await prisma.user.update({
                         where: { phoneNumber: senderId },
-                        data: { username: `@user_${tools.cmd.generateUID(senderId, false)}` }
+                        data: { username: `@user_${senderId.slice(-6)}` }
                     });
                 }
                 if (userDb?.premium && Date.now() > userDb.premiumExpiration) {
