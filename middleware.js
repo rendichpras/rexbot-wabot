@@ -10,10 +10,12 @@ async function checkCoin(requiredCoin, userDb, senderId, isOwner) {
     if (isOwner || userDb?.premium) return false;
     if (userDb?.coin < requiredCoin) return true;
     
-    await prisma.user.update({
-        where: { phoneNumber: senderId },
-        data: { coin: { decrement: requiredCoin } }
-    });
+    if (userDb) {
+        await prisma.user.update({
+            where: { phoneNumber: senderId },
+            data: { coin: { decrement: requiredCoin } }
+        });
+    }
     
     return false;
 }
