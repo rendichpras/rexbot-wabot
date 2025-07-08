@@ -192,23 +192,31 @@ module.exports = (bot) => {
                     }
                 });
             } else {
-                if (isOwner || userDb.premium) {
+                if (isOwner || userDb?.premium) {
                     await prisma.user.update({
                         where: { phoneNumber: senderId },
                         data: { coin: 0 }
                     });
                 }
-                
-                // Update username jika belum ada
-                if (!userDb.username) {
+                if (userDb?.coin === undefined || !Number.isFinite(userDb.coin)) {
                     await prisma.user.update({
                         where: { phoneNumber: senderId },
-                        data: { username: `@user_${senderId.slice(-6)}` }
+                        data: { coin: 500 }
                     });
                 }
-                
-                // Cek premium expiration
-                if (userDb.premium && Date.now() > userDb.premiumExpiration) {
+                if (!userDb?.uid || userDb?.uid !== tools.cmd.generateUID(senderId)) {
+                    await prisma.user.update({
+                        where: { phoneNumber: senderId },
+                        data: { uid: tools.cmd.generateUID(senderId) }
+                    });
+                }
+                if (!userDb?.username) {
+                    await prisma.user.update({
+                        where: { phoneNumber: senderId },
+                        data: { username: `@user_${tools.cmd.generateUID(senderId, false)}` }
+                    });
+                }
+                if (userDb?.premium && Date.now() > userDb.premiumExpiration) {
                     await prisma.user.update({
                         where: { phoneNumber: senderId },
                         data: {

@@ -33,19 +33,7 @@ module.exports = (bot) => {
         // Mengambil data bot, pengguna, dan grup dari database
         const [botDb, userDb, groupDb] = await Promise.all([
             prisma.bot.findUnique({ where: { id: 'bot' } }),
-            prisma.user.upsert({
-                where: { phoneNumber: senderId },
-                create: { 
-                    phoneNumber: senderId,
-                    username: `@user_${senderId.slice(-6)}`,
-                    coin: isOwner ? 0 : 500,
-                    xp: 0,
-                    level: 1,
-                    premium: false,
-                    banned: false
-                },
-                update: {}
-            }),
+            prisma.user.findUnique({ where: { phoneNumber: senderId } }),
             isGroup ? prisma.group.findUnique({ where: { id: groupId } }) : null
         ]);
 
