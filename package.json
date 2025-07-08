@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/rendichpras/rexbot-wabot#readme",
   "dependencies": {
-    "@itsreimau/gktw": "^1.0.17",
+    "@itsreimau/gktw": "^1.1.2",
     "@mengkodingan/consolefy": "^1.0.1",
     "@prisma/client": "^6.11.1",
     "@zanixongroup/uploader": "^2.1.1",

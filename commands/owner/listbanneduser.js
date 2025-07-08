@@ -30,9 +30,9 @@ module.exports = {
 
             return await ctx.reply({
                 text: resultText.trim() || config.msg.notFound,
+                mentions: userMentions,
                 footer: config.msg.footer,
-                interactiveButtons: [],
-                mentions: userMentions
+                interactiveButtons: []
             });
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);

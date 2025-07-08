@@ -75,7 +75,7 @@ module.exports = (bot) => {
                 const profilePictureUrl = await ctx.core.profilePictureUrl(ctx.sender.jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
                 await ctx.reply({
                     text: formatter.quote(`🎉 Selamat! Anda telah mencapai level ${newUserLevel}!`),
-                    footer: formatter.quote(`Untuk menonaktifkan notifikasi kenaikan level, silakan gunakan perintah ${formatter.monospace(`${ctx.used.prefix}setprofile autolevelup`)}`),
+                    footer: `Untuk menonaktifkan notifikasi kenaikan level, silakan gunakan perintah ${formatter.monospace(`${ctx.used.prefix}setprofile autolevelup`)}`,
                     interactiveButtons: []
                 });
             }
@@ -156,7 +156,7 @@ module.exports = (bot) => {
                     await simulateTyping();
                     await ctx.reply({
                         text: msg,
-                        footer: formatter.quote(`Untuk pemberitahuan selanjutnya akan ditampilkan dalam bentuk reaksi emoji '${reaction}'.`),
+                        footer: `Untuk pemberitahuan selanjutnya akan ditampilkan dalam bentuk reaksi emoji '${reaction}'.`,
                         interactiveButtons: []
                     });
                     
@@ -248,7 +248,7 @@ module.exports = (bot) => {
                     await simulateTyping();
                     await ctx.reply({
                         text: msg,
-                        footer: formatter.quote(`Untuk pemberitahuan selanjutnya akan ditampilkan dalam bentuk reaksi emoji '${reaction}'.`),
+                        footer: `Untuk pemberitahuan selanjutnya akan ditampilkan dalam bentuk reaksi emoji '${reaction}'.`,
                         interactiveButtons: []
                     });
 
