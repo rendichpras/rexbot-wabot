@@ -19,15 +19,14 @@ module.exports = {
         if (!isUrl) return await ctx.reply(config.msg.urlInvalid);
 
         try {
-            const apiUrl = tools.api.createUrl("vapis", "/api/ttdl", {
+            const apiUrl = tools.api.createUrl("falcon", "/download/tiktok", {
                 url
             });
-            const result = (await axios.get(apiUrl)).data.data.data;
+            const result = (await axios.get(apiUrl)).data.result.data;
 
-            const video = result.find(r => r.type === "nowatermark");
-            if (video) return await ctx.reply({
+            if (result.play && !result.images) return await ctx.reply({
                 video: {
-                    url: video.url
+                    url: result.play
                 },
                 mimetype: tools.mime.lookup("mp4"),
                 caption: formatter.quote(`URL: ${url}`),
@@ -35,16 +34,17 @@ module.exports = {
                 interactiveButtons: []
             });
 
-            const images = result.filter(r => r.type === "photo");
-            for (const image of images) {
-                await ctx.reply({
+            if (result.images) {
+                const album = result.images.map(imageUrl => ({
                     image: {
-                        url: image.url
+                        url: imageUrl
                     },
-                    mimetype: tools.mime.lookup("jpeg"),
-                    caption: formatter.quote(`URL: ${url}`),
-                    footer: config.msg.footer,
-                    interactiveButtons: []
+                    mimetype: tools.mime.lookup("jpeg")
+                }));
+
+                return await ctx.reply({
+                    album,
+                    caption: formatter.quote(`URL: ${url}`)
                 });
             }
         } catch (error) {

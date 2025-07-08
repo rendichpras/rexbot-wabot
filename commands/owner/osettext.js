@@ -11,7 +11,7 @@ module.exports = {
         const key = ctx.args[0] || null;
         const text = ctx.args.slice(1).join(" ") || ctx?.quoted?.conversation || (ctx.quoted && ((Object.values(ctx.quoted).find(v => v?.text || v?.caption)?.text) || (Object.values(ctx.quoted).find(v => v?.text || v?.caption)?.caption))) || null;
 
-        if (key.toLowercase() === "list") {
+        if (input.toLowerCase() === "list") {
             const listText = await tools.list.get("osettext");
             return await ctx.reply({
                 text: listText,
@@ -32,7 +32,7 @@ module.exports = {
             const textKey = key.toLowerCase();
 
             if (!validKeys.includes(textKey)) {
-                return await ctx.reply(formatter.quote(`❎ Teks '${key}' tidak valid!`));
+                return await ctx.reply(formatter.quote(`❎ Teks ${formatter.monospace(key)} tidak valid!`));
             }
 
             // Ambil pengaturan bot yang ada
@@ -53,7 +53,7 @@ module.exports = {
                     }
                 });
 
-                return await ctx.reply(formatter.quote(`🗑️ Pesan untuk teks '${key}' berhasil dihapus!`));
+                return await ctx.reply(formatter.quote(`🗑️ Pesan untuk teks ${formatter.monospace(key)} berhasil dihapus!`));
             }
 
             // Update settings dengan teks baru
@@ -73,7 +73,7 @@ module.exports = {
                 }
             });
 
-            return await ctx.reply(formatter.quote(`✅ Pesan untuk teks '${key}' berhasil disimpan!`));
+            return await ctx.reply(formatter.quote(`✅ Pesan untuk teks ${formatter.monospace(key)} berhasil disimpan!`));
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);
         }

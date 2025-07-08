@@ -31,9 +31,13 @@ c.log("Starting..."); // Logging proses awal
 
 // Tampilkan nama proyek
 CFonts.say(pkg.name, {
-    font: "chrome",
+    font: "block",
     align: "center",
-    gradient: ["red", "magenta"]
+    colors: ["cyanBright", "white"],
+    background: "transparent",
+    letterSpacing: 1,
+    lineHeight: 1,
+    space: true
 });
 
 // Tampilkan deskripsi dan informasi pengembang
@@ -42,7 +46,8 @@ CFonts.say(
     `By ${pkg.author}`, {
         font: "console",
         align: "center",
-        gradient: ["red", "magenta"]
+        colors: ["white", "cyan"],
+        lineHeight: 1
     }
 );
 

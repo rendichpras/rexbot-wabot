@@ -80,7 +80,7 @@ module.exports = (bot) => {
                     buttons: [{
                         buttonId: `${ctx.used.prefix}setprofile autolevelup`,
                         buttonText: {
-                            displayText: "Nonaktifkan Pesan Autolevelup"
+                            displayText: "Nonaktifkan Autolevelup"
                         },
                         type: 1
                     }],
@@ -127,7 +127,7 @@ module.exports = (bot) => {
                 reaction: "🎮"
             }, {
                 key: "requireBotGroupMembership",
-                condition: config.system.requireBotGroupMembership && !isOwner && !userDb?.premium && ctx.used.command !== "botgroup" && config.bot.groupJid && !await ctx.group(config.bot.groupJid).members().some((member) => ctx.getId(member.id) === senderJid),
+                condition: config.system.requireBotGroupMembership && !isOwner && !userDb?.premium && ctx.used.command !== "botgroup" && config.bot.groupJid && !(await ctx.group(config.bot.groupJid).members()).some(member => member.id === senderJid),
                 msg: config.msg.botGroupMembership,
                 reaction: "🚫"
             },
@@ -164,7 +164,7 @@ module.exports = (bot) => {
                     await simulateTyping();
                     await ctx.reply({
                         text: msg,
-                        footer: formatter.italic(`Untuk pemberitahuan selanjutnya akan ditampilkan dalam bentuk reaksi emoji '${reaction}'.`),
+                        footer: formatter.italic(`Untuk pemberitahuan selanjutnya akan ditampilkan dalam bentuk reaksi emoji ${formatter.monospace(reaction)}.`),
                         interactiveButtons: []
                     });
                     
@@ -256,7 +256,7 @@ module.exports = (bot) => {
                     await simulateTyping();
                     await ctx.reply({
                         text: msg,
-                        footer: formatter.italic(`Untuk pemberitahuan selanjutnya akan ditampilkan dalam bentuk reaksi emoji '${reaction}'.`),
+                        footer: formatter.italic(`Untuk pemberitahuan selanjutnya akan ditampilkan dalam bentuk reaksi emoji ${formatter.monospace(reaction)}.`),
                         interactiveButtons: []
                     });
 

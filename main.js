@@ -30,16 +30,22 @@ consolefy.log("Connecting..."); // Logging proses koneksi
 
 // Pastikan data bot ada di database
 async function initBotSettings() {
-    const botSettings = await prisma.bot.upsert({
-        where: { id: 'bot' },
-        create: {
-            id: 'bot',
-            mode: 'public',
-            settings: {}
-        },
-        update: {}
-    });
-    return botSettings;
+    try {
+        const botSettings = await prisma.bot.upsert({
+            where: { id: 'bot' },
+            create: {
+                id: 'bot',
+                mode: 'public',
+                settings: {}
+            },
+            update: {}
+        });
+        consolefy.success("Berhasil terhubung ke database!");
+        return botSettings;
+    } catch (error) {
+        consolefy.error(`Gagal terhubung ke database: ${error.message}`);
+        throw error;
+    }
 }
 
 // Buat instance bot dengan pengaturan yang sesuai

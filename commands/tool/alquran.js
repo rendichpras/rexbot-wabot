@@ -13,7 +13,7 @@ module.exports = {
             formatter.quote(tools.msg.generateNotes([`Silakan ketik ${formatter.monospace(`${ctx.used.prefix + ctx.used.command} list`)} untuk menampilkan daftar lengkap.`]))
         );
 
-        if (surat.toLowercase() === "list") {
+        if (surat.toLowerCase() === "list") {
             const listText = await tools.list.get("alquran");
             return await ctx.reply({
                 text: listText,
@@ -33,11 +33,11 @@ module.exports = {
 
             if (ayat) {
                 if (ayat.includes("-")) {
+                    const selectedVerses = verses.filter(v => v.number >= startAyat && v.number <= endAyat);
                     const [startAyat, endAyat] = ayat.split("-").map(Number);
 
                     if (isNaN(startAyat) || isNaN(endAyat) || startAyat < 1 || endAyat < startAyat) return await ctx.reply(formatter.quote("❎ Rentang ayat tidak valid!"));
 
-                    const selectedVerses = verses.filter(v => v.number >= startAyat && v.number <= endAyat);
                     if (!selectedVerses.length) return await ctx.reply(formatter.quote(`❎ Ayat dalam rentang ${startAyat}-${endAyat} tidak ada!`));
 
                     const versesText = selectedVerses.map(v =>
@@ -56,9 +56,10 @@ module.exports = {
                 }
 
                 const singleAyat = parseInt(ayat);
-                if (isNaN(singleAyat) || singleAyat < 1) return await ctx.reply(formatter.quote("❎ Ayat harus berupa nomor yang valid dan lebih besar dari 0!"));
 
                 const verse = verses.find(v => v.number === singleAyat);
+
+                if (isNaN(singleAyat) || singleAyat < 1) return await ctx.reply(formatter.quote("❎ Ayat harus berupa nomor yang valid dan lebih besar dari 0!"));
                 if (!verse) return await ctx.reply(formatter.quote(`❎ Ayat ${singleAyat} tidak ada!`));
 
                 return await ctx.reply({

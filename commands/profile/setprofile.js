@@ -53,7 +53,7 @@ module.exports = {
                         update: { username: username }
                     });
 
-                    return await ctx.reply(formatter.quote(`✅ Username berhasil diubah menjadi '${username}'!`));
+                    return await ctx.reply(formatter.quote(`✅ Username berhasil diubah menjadi ${formatter.monospace(username)}!`));
                     break;
                 }
                 case "autolevelup": {
@@ -74,11 +74,11 @@ module.exports = {
                     });
 
                     const statusText = newStatus ? "diaktifkan" : "dinonaktifkan";
-                    return await ctx.reply(formatter.quote(`✅ Fitur '${command}' berhasil ${statusText}!`));
+                    return await ctx.reply(formatter.quote(`✅ Autolevelup berhasil ${statusText}!`));
                     break;
                 }
                 default:
-                    return await ctx.reply(formatter.quote(`❎ Setelan "${input}" tidak valid.`));
+                    return await ctx.reply(formatter.quote(`❎ Setelan ${formatter.monospace(input)} tidak valid.`));
             }
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);

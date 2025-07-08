@@ -20,26 +20,25 @@ module.exports = {
         if (!isUrl) return await ctx.reply(config.msg.urlInvalid);
 
         try {
-            const apiUrl = tools.api.createUrl("vapis", "/api/igdl", {
+            const apiUrl = tools.api.createUrl("zenzxz", "/downloader/aio", {
                 url
             });
-            const result = (await axios.get(apiUrl)).data.data;
-
-            for (const media of result) {
+            const result = (await axios.get(apiUrl)).data.result.medias;
+            const medias = result.filter(media => media.type === "image" || media.type === "video");
+            const album = medias.map(media => {
                 const isVideo = media.type === "video";
-                const mediaType = isVideo ? "video" : "image";
-                const extension = isVideo ? "mp4" : "jpg";
-
-                await ctx.reply({
-                    [mediaType]: {
+                return {
+                    [isVideo ? "video" : "image"]: {
                         url: media.url
                     },
-                    mimetype: tools.mime.lookup(extension),
-                    caption: formatter.quote(`URL: ${url}`),
-                    footer: config.msg.footer,
-                    interactiveButtons: []
-                });
-            }
+                    mimetype: tools.mime.lookup(isVideo ? "mp4" : "jpg")
+                };
+            });
+
+            return await ctx.reply({
+                album,
+                caption: formatter.quote(`URL: ${url}`)
+            });
         } catch (error) {
             return await tools.cmd.handleError(ctx, error, true);
         }

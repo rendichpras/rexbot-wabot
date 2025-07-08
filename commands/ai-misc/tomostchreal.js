@@ -1,10 +1,7 @@
-const axios = require("axios");
-
-
 module.exports = {
-    name: "removebg",
-    aliases: ["rbg"],
-    category: "tool",
+    name: "tomostchreal",
+    aliases: ["jadimosril", "jadimostchreal", "jadisdmtinggi", "mosril", "tomosril", "tosdmtinggi"],
+    category: "ai-misc",
     permissions: {
         coin: 10
     },
@@ -20,19 +17,15 @@ module.exports = {
         try {
             const buffer = await ctx.msg.media.toBuffer() || await ctx.quoted.media.toBuffer();
             const uploadUrl = await tools.cmd.upload(buffer, "image");
-            const apiUrl = tools.api.createUrl("archive", "/api/tools/removebg-v2", {
+            const result = tools.api.createUrl("zenzxz", "/maker/tosdmtinggi", {
                 url: uploadUrl
             });
-            const result = (await axios.get(apiUrl)).data.result;
 
             return await ctx.reply({
                 image: {
                     url: result
                 },
-                mimetype: tools.mime.lookup("png"),
-                caption: formatter.quote("Untukmu, tuan!"),
-                footer: config.msg.footer,
-                interactiveButtons: []
+                mimetype: tools.mime.lookup("png")
             });
         } catch (error) {
             return await tools.cmd.handleError(ctx, error, true);

@@ -28,18 +28,17 @@ module.exports = {
                 const groupInfo = await ctx.group(groupJid);
                 if (!groupInfo) continue; // Skip jika grup tidak ditemukan
 
-                const groupName = await groupInfo.name();
                 groupMentions.push({
                     groupJid,
-                    groupSubject: groupName
+                    groupSubject
                 });
 
                 if (group.sewaExpiration) {
                     const timeLeft = group.sewaExpiration.getTime() - Date.now();
                     const duration = tools.msg.convertMsToDuration(timeLeft);
-                    resultText += `${formatter.quote(`${groupName} (${duration} tersisa)`)}\n`;
+                    resultText += `${formatter.quote(`${groupJid} (${duration} tersisa)`)}\n`;
                 } else {
-                    resultText += `${formatter.quote(`${groupName} (Sewa permanen)`)}\n`;
+                    resultText += `${formatter.quote(`${groupJid} (Sewa permanen)`)}\n`;
                 }
             }
 

@@ -16,7 +16,7 @@ module.exports = {
             formatter.quote(tools.msg.generateNotes([`Silakan ketik ${formatter.monospace(`${ctx.used.prefix + ctx.used.command} list`)} untuk menampilkan daftar lengkap.`]))
         );
 
-        if (input.toLowercase() === "list") {
+        if (input.toLowerCase() === "list") {
             const listText = await tools.list.get("mode");
             return await ctx.reply({
                 text: listText,

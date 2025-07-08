@@ -32,7 +32,8 @@ module.exports = {
             });
 
             const silent = flag?.silent || false;
-            const groupOwnerJid = await group.owner();
+            const group = await ctx.group(groupJid);
+            const groupOwner = await group.owner();
 
             // Update grup untuk menghapus status sewa
             await prisma.group.update({
@@ -45,10 +46,17 @@ module.exports = {
                 }
             });
 
-            if (!silent && groupOwnerJid) {
-                await ctx.sendMessage(groupOwnerJid, {
-                    text: formatter.quote(`📢 Sewa bot untuk grup anda telah dihentikan oleh Owner!`)
-                }).catch(() => { });
+            if (!silent && groupOwner) {
+                const groupMentions = [{
+                    groupJid: `${group.id}@g.us`,
+                    groupSubject: await group.name()
+                }];
+                await ctx.sendMessage(groupOwner, {
+                    text: formatter.quote(`📢 Sewa bot untuk grup @${groupMentions.groupJid} telah dihentikan oleh Owner!`),
+                    contextInfo: {
+                        groupMentions
+                    }
+                });
             }
 
             return await ctx.reply(formatter.quote(`✅ Berhasil menghapus sewa bot untuk grup ini!`));

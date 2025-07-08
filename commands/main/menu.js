@@ -69,7 +69,11 @@ module.exports = {
             text += "\n";
 
             return await ctx.sendMessage(ctx.id, {
-                text: text.trim(),
+                image: {
+                    url: config.bot.thumbnail
+                },
+                mimetype: tools.mime.lookup("png"),
+                caption: text.trim(),
                 mentions: [ctx.sender.jid],
                 footer: config.msg.footer,
                 buttons: [{

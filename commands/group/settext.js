@@ -35,7 +35,7 @@ module.exports = {
             const textKey = key.toLowerCase();
 
             if (!validKeys.includes(textKey)) {
-                return await ctx.reply(formatter.quote(`❎ Teks '${key}' tidak valid!`));
+                return await ctx.reply(formatter.quote(`❎ Teks ${formatter.monospace(key)} tidak valid!`));
             }
 
             let group = await prisma.group.findUnique({
@@ -60,7 +60,7 @@ module.exports = {
                     }
                 });
 
-                return await ctx.reply(formatter.quote(`🗑️ Pesan untuk teks '${key}' berhasil dihapus!`));
+                return await ctx.reply(formatter.quote(`🗑️ Pesan untuk teks ${formatter.monospace(key)} berhasil dihapus!`));
             }
 
             // Update atau tambah teks baru
@@ -80,7 +80,7 @@ module.exports = {
                 }
             });
 
-            return await ctx.reply(formatter.quote(`✅ Pesan untuk teks '${key}' berhasil disimpan!`));
+            return await ctx.reply(formatter.quote(`✅ Pesan untuk teks ${formatter.monospace(key)} berhasil disimpan!`));
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);
         }

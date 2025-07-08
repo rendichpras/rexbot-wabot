@@ -66,7 +66,7 @@ module.exports = {
 
             const option = input.toLowerCase();
             if (!validOptions.includes(option)) {
-                return await ctx.reply(formatter.quote(`❎ Opsi '${input}' tidak valid!`));
+                return await ctx.reply(formatter.quote(`❎ Opsi ${formatter.monospace(input)} tidak valid!`));
             }
 
             const currentOptions = group?.option || {};
@@ -90,7 +90,7 @@ module.exports = {
             });
 
             const statusText = newStatus ? "diaktifkan" : "dinonaktifkan";
-            return await ctx.reply(formatter.quote(`✅ Opsi '${option}' berhasil ${statusText}!`));
+            return await ctx.reply(formatter.quote(`✅ Opsi ${formatter.monospace(input)} berhasil ${statusText}!`));
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);
         }
