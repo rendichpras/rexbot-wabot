@@ -35,8 +35,9 @@ module.exports = {
                 });
 
                 if (group.sewaExpiration) {
-                    const daysLeft = Math.ceil(Number(group.sewaExpiration - BigInt(Date.now())) / (24 * 60 * 60 * 1000));
-                    resultText += `${formatter.quote(`${groupName} (${daysLeft} hari tersisa)`)}\n`;
+                    const timeLeft = group.sewaExpiration.getTime() - Date.now();
+                    const duration = tools.msg.convertMsToDuration(timeLeft);
+                    resultText += `${formatter.quote(`${groupName} (${duration} tersisa)`)}\n`;
                 } else {
                     resultText += `${formatter.quote(`${groupName} (Sewa permanen)`)}\n`;
                 }

@@ -54,7 +54,10 @@ module.exports = {
                     url: result.downloadUrl
                 },
                 fileName: `${result.title}.mp3`,
-                mimetype: tools.mime.lookup("mp3")
+                mimetype: tools.mime.lookup("mp3"),
+                caption: formatter.quote(`URL: ${url}`),
+                footer: config.msg.footer,
+                interactiveButtons: []
             });
 
             return await ctx.reply({

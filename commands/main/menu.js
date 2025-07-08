@@ -66,8 +66,10 @@ module.exports = {
                 }
             }
 
+            text += "\n";
+
             return await ctx.sendMessage(ctx.id, {
-                text,
+                text: text.trim(),
                 mentions: [ctx.sender.jid],
                 footer: config.msg.footer,
                 buttons: [{

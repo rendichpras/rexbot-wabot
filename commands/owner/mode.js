@@ -30,7 +30,7 @@ module.exports = {
             const mode = input.toLowerCase();
 
             if (!validModes.includes(mode)) {
-                return await ctx.reply(formatter.quote("❎ Mode tidak valid."));
+                return await ctx.reply(formatter.quote(`❎ Mode "${input}" tidak valid!`));
             }
 
             // Update mode bot

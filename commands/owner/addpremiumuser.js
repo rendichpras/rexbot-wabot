@@ -29,7 +29,7 @@ module.exports = {
 
         try {
             const userId = ctx.getId(userJid);
-            const expirationDate = daysAmount ? Date.now() + (daysAmount * 24 * 60 * 60 * 1000) : null;
+            const expirationDate = daysAmount ? new Date(Date.now() + (daysAmount * 24 * 60 * 60 * 1000)) : null;
 
             // Update atau buat user baru dengan status premium
             await prisma.user.upsert({
@@ -39,11 +39,11 @@ module.exports = {
                 create: {
                     phoneNumber: userId,
                     premium: true,
-                    premiumExpiration: expirationDate ? BigInt(expirationDate) : null
+                    premiumExpiration: expirationDate
                 },
                 update: {
                     premium: true,
-                    premiumExpiration: expirationDate ? BigInt(expirationDate) : null
+                    premiumExpiration: expirationDate
                 }
             });
 

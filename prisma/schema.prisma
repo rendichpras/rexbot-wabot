@@ -19,7 +19,7 @@ model User {
   level            Int       @default(0)
   winGame          Int       @default(0) // jumlah kemenangan game
   premium          Boolean   @default(false)
-  premiumExpiration BigInt?
+  premiumExpiration DateTime?
   banned           Boolean   @default(false)
   autolevelup      Boolean   @default(true)
   lastSentMsg      Json?     // {banned: timestamp, premium: timestamp, dll}
@@ -36,7 +36,7 @@ model Group {
   mutebot         String?   // true/false/"owner"
   mute            String[]  // Array dari phoneNumber yang di-mute
   sewa            Boolean   @default(false)
-  sewaExpiration  BigInt?
+  sewaExpiration  DateTime?
   option          Json      @default("{}") // Opsi grup
   text            Json?     // {welcome?: string, goodbye?: string, intro?: string}
   warnings        Json      @default("{}") // {phoneNumber: jumlahWarning}

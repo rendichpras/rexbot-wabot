@@ -23,7 +23,7 @@ module.exports = {
             mentions: [senderJid]
         });
 
-        if (accountId === config.bot.id) return await ctx.reply(formatter.quote(`❎ Tidak dapat memberikan warning ke bot.`));
+        if (accountId === config.bot.id) return await ctx.reply(formatter.quote(`❎ Tidak dapat memberikan warning ke bot!`));
         if (accountJid === await ctx.group().owner()) return await ctx.reply(formatter.quote("❎ Tidak dapat memberikan warning ke admin grup!"));
 
         try {

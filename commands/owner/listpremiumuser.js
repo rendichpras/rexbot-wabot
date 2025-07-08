@@ -28,8 +28,9 @@ module.exports = {
                 userMentions.push(userJid);
 
                 if (user.premiumExpiration) {
-                    const daysLeft = Math.ceil(Number(user.premiumExpiration - BigInt(Date.now())) / (24 * 60 * 60 * 1000));
-                    resultText += `${formatter.quote(`@${user.phoneNumber} (${daysLeft} hari tersisa)`)}\n`;
+                    const timeLeft = user.premiumExpiration.getTime() - Date.now();
+                    const duration = tools.msg.convertMsToDuration(timeLeft);
+                    resultText += `${formatter.quote(`@${user.phoneNumber} (${duration} tersisa)`)}\n`;
                 } else {
                     resultText += `${formatter.quote(`@${user.phoneNumber} (Premium permanen)`)}\n`;
                 }

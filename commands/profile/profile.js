@@ -36,7 +36,7 @@ module.exports = {
 
             return await ctx.reply({
                 text: `${formatter.quote(`Nama: ${ctx.sender.pushName} (${user?.username || "guest"})`)}\n` +
-                    `${formatter.quote(`Status: ${isOwner ? "Owner" : user?.premium ? `Premium (${user?.premiumExpiration ? tools.msg.convertMsToDuration(Number(user.premiumExpiration)) : "Selamanya"})` : "Freemium"}`)}\n` +
+                    `${formatter.quote(`Status: ${isOwner ? "Owner" : user?.premium ? `Premium (${user?.premiumExpiration ? tools.msg.convertMsToDuration(user.premiumExpiration.getTime() - Date.now()) : "Selamanya"})` : "Free"}`)}\n` +
                     `${formatter.quote(`Level: ${user?.level || 0} (${user?.xp || 0}/100)`)}\n` +
                     `${formatter.quote(`Koin: ${isOwner || user?.premium ? "Tak terbatas" : user?.coin || 0}`)}\n` +
                     `${formatter.quote(`Menang: ${user?.winGame || 0}`)}\n` +

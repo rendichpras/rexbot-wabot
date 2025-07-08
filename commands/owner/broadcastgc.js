@@ -42,7 +42,7 @@ module.exports = {
                         }
                     }
                 });
-                return await ctx.reply("✅ Grup ini telah dihapus dari blacklist broadcast");
+                return await ctx.reply(formatter.quote("✅ Grup ini telah dihapus dari blacklist broadcast"));
             } else {
                 // Tambah grup ke blacklist
                 await prisma.bot.upsert({
@@ -60,7 +60,7 @@ module.exports = {
                         }
                     }
                 });
-                return await ctx.reply("✅ Grup ini telah ditambahkan ke blacklist broadcast");
+                return await ctx.reply(formatter.quote("✅ Grup ini telah ditambahkan ke blacklist broadcast"));
             }
         }
 

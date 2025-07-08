@@ -78,7 +78,7 @@ module.exports = {
                     break;
                 }
                 default:
-                    return await ctx.reply(formatter.quote("❎ Teks tidak valid."));
+                    return await ctx.reply(formatter.quote(`❎ Setelan "${input}" tidak valid.`));
             }
         } catch (error) {
             return await tools.cmd.handleError(ctx, error);

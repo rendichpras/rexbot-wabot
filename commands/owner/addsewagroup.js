@@ -38,7 +38,7 @@ module.exports = {
             const groupOwnerJid = await group.owner();
 
             if (daysAmount && daysAmount > 0) {
-                const expirationDate = BigInt(Date.now() + (daysAmount * 24 * 60 * 60 * 1000));
+                const expirationDate = new Date(Date.now() + (daysAmount * 24 * 60 * 60 * 1000));
 
                 // Update status sewa dan expiration menggunakan Prisma
                 await prisma.group.upsert({
