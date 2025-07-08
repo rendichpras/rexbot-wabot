@@ -22,7 +22,7 @@ module.exports = {
                 caption: formatter.quote("Those who hate themselves, cannot love or trust others."),
                 footer: config.msg.footer,
                 buttons: [{
-                    buttonId: `${ctx.used.prefix + ctx.used.command} ${input}`,
+                    buttonId: ctx.used.prefix + ctx.used.command,
                     buttonText: {
                         displayText: "Ambil Lagi"
                     },
