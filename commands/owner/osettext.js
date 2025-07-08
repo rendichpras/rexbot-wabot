@@ -13,7 +13,11 @@ module.exports = {
 
         if (key.toLowercase() === "list") {
             const listText = await tools.list.get("osettext");
-            return await ctx.reply(listText);
+            return await ctx.reply({
+                text: listText,
+                footer: config.msg.footer,
+                interactiveButtons: []
+            });
         }
         
         if (!key || !text) return await ctx.reply(
