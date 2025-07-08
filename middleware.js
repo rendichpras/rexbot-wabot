@@ -35,7 +35,15 @@ module.exports = (bot) => {
             prisma.bot.findUnique({ where: { id: 'bot' } }),
             prisma.user.upsert({
                 where: { phoneNumber: senderId },
-                create: { phoneNumber: senderId },
+                create: { 
+                    phoneNumber: senderId,
+                    username: `@user_${senderId.slice(-6)}`,
+                    coin: isOwner ? 0 : 500,
+                    xp: 0,
+                    level: 1,
+                    premium: false,
+                    banned: false
+                },
                 update: {}
             }),
             isGroup ? prisma.group.findUnique({ where: { id: groupId } }) : null

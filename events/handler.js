@@ -183,8 +183,12 @@ module.exports = (bot) => {
                 await prisma.user.create({
                     data: {
                         phoneNumber: senderId,
+                        username: `@user_${senderId.slice(-6)}`,
                         coin: isOwner ? 0 : 500,
-                        username: `@user_${senderId.slice(-6)}`
+                        xp: 0,
+                        level: 1,
+                        premium: false,
+                        banned: false
                     }
                 });
             } else {
